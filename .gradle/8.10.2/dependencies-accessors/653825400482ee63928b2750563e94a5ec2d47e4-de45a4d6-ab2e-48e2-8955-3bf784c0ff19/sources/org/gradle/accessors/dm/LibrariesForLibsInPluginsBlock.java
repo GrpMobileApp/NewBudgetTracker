@@ -92,7 +92,6 @@ public class LibrariesForLibsInPluginsBlock extends AbstractExternalDependencyFa
         private final AndroidxCoreLibraryAccessors laccForAndroidxCoreLibraryAccessors = new AndroidxCoreLibraryAccessors(owner);
         private final AndroidxEspressoLibraryAccessors laccForAndroidxEspressoLibraryAccessors = new AndroidxEspressoLibraryAccessors(owner);
         private final AndroidxLifecycleLibraryAccessors laccForAndroidxLifecycleLibraryAccessors = new AndroidxLifecycleLibraryAccessors(owner);
-        private final AndroidxNavigationLibraryAccessors laccForAndroidxNavigationLibraryAccessors = new AndroidxNavigationLibraryAccessors(owner);
         private final AndroidxUiLibraryAccessors laccForAndroidxUiLibraryAccessors = new AndroidxUiLibraryAccessors(owner);
 
         public AndroidxLibraryAccessors(AbstractExternalDependencyFactory owner) { super(owner); }
@@ -178,17 +177,6 @@ public class LibrariesForLibsInPluginsBlock extends AbstractExternalDependencyFa
         public AndroidxLifecycleLibraryAccessors getLifecycle() {
             org.gradle.internal.deprecation.DeprecationLogger.deprecateBehaviour("Accessing libraries or bundles from version catalogs in the plugins block.").withAdvice("Only use versions or plugins from catalogs in the plugins block.").willBeRemovedInGradle9().withUpgradeGuideSection(8, "kotlin_dsl_deprecated_catalogs_plugins_block").nagUser();
             return laccForAndroidxLifecycleLibraryAccessors;
-        }
-
-        /**
-         * Group of libraries at <b>androidx.navigation</b>
-         *
-         * @deprecated Will be removed in Gradle 9.0.
-         */
-        @Deprecated
-        public AndroidxNavigationLibraryAccessors getNavigation() {
-            org.gradle.internal.deprecation.DeprecationLogger.deprecateBehaviour("Accessing libraries or bundles from version catalogs in the plugins block.").withAdvice("Only use versions or plugins from catalogs in the plugins block.").willBeRemovedInGradle9().withUpgradeGuideSection(8, "kotlin_dsl_deprecated_catalogs_plugins_block").nagUser();
-            return laccForAndroidxNavigationLibraryAccessors;
         }
 
         /**
@@ -342,30 +330,6 @@ public class LibrariesForLibsInPluginsBlock extends AbstractExternalDependencyFa
         public Provider<MinimalExternalModuleDependency> getKtx() {
             org.gradle.internal.deprecation.DeprecationLogger.deprecateBehaviour("Accessing libraries or bundles from version catalogs in the plugins block.").withAdvice("Only use versions or plugins from catalogs in the plugins block.").willBeRemovedInGradle9().withUpgradeGuideSection(8, "kotlin_dsl_deprecated_catalogs_plugins_block").nagUser();
             return create("androidx.lifecycle.runtime.ktx");
-        }
-
-    }
-
-    /**
-     * @deprecated Will be removed in Gradle 9.0.
-     */
-    @Deprecated
-    public static class AndroidxNavigationLibraryAccessors extends SubDependencyFactory {
-
-        public AndroidxNavigationLibraryAccessors(AbstractExternalDependencyFactory owner) { super(owner); }
-
-        /**
-         * Dependency provider for <b>compose</b> with <b>androidx.navigation:navigation-compose</b> coordinates and
-         * with version reference <b>navigationCompose</b>
-         * <p>
-         * This dependency was declared in catalog libs.versions.toml
-         *
-         * @deprecated Will be removed in Gradle 9.0.
-         */
-        @Deprecated
-        public Provider<MinimalExternalModuleDependency> getCompose() {
-            org.gradle.internal.deprecation.DeprecationLogger.deprecateBehaviour("Accessing libraries or bundles from version catalogs in the plugins block.").withAdvice("Only use versions or plugins from catalogs in the plugins block.").willBeRemovedInGradle9().withUpgradeGuideSection(8, "kotlin_dsl_deprecated_catalogs_plugins_block").nagUser();
-            return create("androidx.navigation.compose");
         }
 
     }
@@ -601,16 +565,6 @@ public class LibrariesForLibsInPluginsBlock extends AbstractExternalDependencyFa
          * This version was declared in catalog libs.versions.toml
          */
         public Provider<String> getLifecycleRuntimeKtx() { return getVersion("lifecycleRuntimeKtx"); }
-
-        /**
-         * Version alias <b>navigationCompose</b> with value <b>2.8.8</b>
-         * <p>
-         * If the version is a rich version and cannot be represented as a
-         * single version string, an empty string is returned.
-         * <p>
-         * This version was declared in catalog libs.versions.toml
-         */
-        public Provider<String> getNavigationCompose() { return getVersion("navigationCompose"); }
 
     }
 

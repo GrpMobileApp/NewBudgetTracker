@@ -603,7 +603,7 @@ public class LibrariesForLibsInPluginsBlock extends AbstractExternalDependencyFa
         public Provider<String> getLifecycleRuntimeKtx() { return getVersion("lifecycleRuntimeKtx"); }
 
         /**
-         * Version alias <b>navigationCompose</b> with value <b>2.8.8</b>
+         * Version alias <b>navigationCompose</b> with value <b>2.8.9</b>
          * <p>
          * If the version is a rich version and cannot be represented as a
          * single version string, an empty string is returned.
