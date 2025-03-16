@@ -3,6 +3,7 @@ package com.example.mybudgetapp.ui.appbars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.Icon
@@ -19,8 +20,9 @@ fun BottomBar(navController: NavController){
     val backStackEntry = navController.currentBackStackEntryAsState()
     val tabs = listOf(
         TabItem("Budget", Icons.Filled.ReceiptLong, route = "home"),
-        TabItem("Transaction", Icons.Filled.AttachMoney, route = "transaction"),
+        TabItem("Outflow", Icons.Filled.AttachMoney, route = "outflow"),
         TabItem("Insights", Icons.Filled.BarChart, route = "insights"),
+        TabItem("Info", Icons.Filled.Info, route = "info"),
         TabItem("Profile", Icons.Filled.Person, route = "profile")
     )
     NavigationBar(
