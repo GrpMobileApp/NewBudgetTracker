@@ -11,12 +11,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.example.mybudgetapp.ui.topbars.MainTopBar
+import com.example.mybudgetapp.ui.appbars.BottomBar
+import com.example.mybudgetapp.ui.appbars.MainTopBar
 
 @Composable
 fun HomeScreen(navController: NavController){
     Scaffold (
-        topBar = { MainTopBar(navController) }
+        topBar = { MainTopBar(navController) },
+        bottomBar = { BottomBar(navController) }
     ){ innerPadding ->
         Column (
             modifier = Modifier
