@@ -69,7 +69,7 @@ fun TransactionItem(transaction: Transaction) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = transaction.name, style = MaterialTheme.typography.bodyLarge)
             Text(
-                text = "$${transaction.amount}",
+                text = "€${transaction.amount}",
                 fontWeight = FontWeight.Bold,
                 color = textColor
             )
