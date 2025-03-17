@@ -56,19 +56,21 @@ fun TransactionScreen(navController: NavController, viewModel: TransactionViewMo
 //to display each individual transaction in the list
 @Composable
 fun TransactionItem(transaction: Transaction) {
-
+    val backgroundColor = if (transaction.type == TransactionType.INCOME) Color(0xFFD0F0C0) else Color(0xFFFFD6D6)
+    val textColor = if (transaction.type == TransactionType.INCOME) Color(0xFF006400) else Color.Red
 //display each transaction in a material-styled container with padding
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = transaction.name, style = MaterialTheme.typography.bodyLarge)
             Text(
                 text = "$${transaction.amount}",
                 fontWeight = FontWeight.Bold,
-
+                color = textColor
             )
         }
     }
