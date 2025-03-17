@@ -46,13 +46,15 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun MainTopBar(navController: NavController, onMonthYearSelected:(String,String) -> Unit){
+fun MainTopBar(navController: NavController, onMonthYearSelected:(String,String) -> Unit, onOptionSelected:(String) -> Unit){
     var expanded by remember {  mutableStateOf(false) }
     var selectedMonthYear by remember { mutableStateOf("") }
 
     val currentDate = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern("MMMM yyyy")
     val monthYearList = generateMonthYearList(currentDate, 24)
+
+
 
     // Set the default value for selectedMonthYear if it is empty
     if (selectedMonthYear.isEmpty()) {
@@ -73,7 +75,7 @@ fun MainTopBar(navController: NavController, onMonthYearSelected:(String,String)
                     text = "My Budget App",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.Serif,
+                    fontFamily = FontFamily.SansSerif,
                     modifier = Modifier
                         .fillMaxWidth()
                 )
@@ -87,7 +89,7 @@ fun MainTopBar(navController: NavController, onMonthYearSelected:(String,String)
                     Text(
                         text = selectedMonthYear,
                         fontSize = 20.sp,
-                        fontFamily = FontFamily.Serif,
+                        fontFamily = FontFamily.SansSerif,
                         color = MaterialTheme.colorScheme.onSecondary
                     )
                     // Dropdown icon next to the month/year
