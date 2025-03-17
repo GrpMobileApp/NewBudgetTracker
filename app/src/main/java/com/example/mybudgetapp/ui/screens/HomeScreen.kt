@@ -57,74 +57,7 @@ fun HomeScreen(navController: NavController) {
             Text(text = "This is home screen")
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                //btn for add income
-                Button(
-                    onClick = { },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(80.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
-                ) {
-                    Icon(imageVector = Icons.Default.AttachMoney, contentDescription = "Add Income")
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Add Income")
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                //btn for add expense
-                Button(
-                    onClick = {  },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(80.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
-                ) {
-                    Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = "Add Expense")
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Add Expense")
-                }
-            }
-            Spacer(modifier = Modifier.height(8.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            )
-            // btn for transaction page
-            {
-                Button(
-                    onClick = {},
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(80.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
-                ) {
-                    Icon(imageVector = Icons.AutoMirrored.Filled.ReceiptLong, contentDescription = "Transactions")
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Transactions")
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                //btn for profile
-
-                Button(
-                    onClick = { },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(80.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
-                ) {
-                    Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "Profile")
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Profile")
-                }
-            }
         }
     }
 }
