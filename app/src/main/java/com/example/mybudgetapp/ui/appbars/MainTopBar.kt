@@ -46,13 +46,14 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun MainTopBar(navController: NavController, onMonthYearSelected:(String,String) -> Unit){
+fun MainTopBar(navController: NavController, onMonthYearSelected:(String,String) -> Unit,  title: String){
     var expanded by remember {  mutableStateOf(false) }
     var selectedMonthYear by remember { mutableStateOf("") }
 
     val currentDate = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern("MMMM yyyy")
     val monthYearList = generateMonthYearList(currentDate, 24)
+
 
     // Set the default value for selectedMonthYear if it is empty
     if (selectedMonthYear.isEmpty()) {
@@ -70,7 +71,8 @@ fun MainTopBar(navController: NavController, onMonthYearSelected:(String,String)
                 modifier = Modifier.fillMaxWidth(),
             ){
                 Text(
-                    text = "My Budget App",
+                    //to display dynamic title for each screen
+                    text = title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Serif,

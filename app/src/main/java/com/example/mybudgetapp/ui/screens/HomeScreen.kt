@@ -43,8 +43,7 @@ fun HomeScreen(navController: NavController) {
     }
 
     Scaffold(
-
-        topBar = { MainTopBar(navController, ::onMonthYearSelected) },
+        topBar = { MainTopBar(navController, ::onMonthYearSelected, title = "Budget App") },
         bottomBar = { BottomBar(navController) }
     ) { innerPadding ->
         Column(
@@ -57,7 +56,6 @@ fun HomeScreen(navController: NavController) {
         ) {
             Text(text = "This is home screen")
             Spacer(modifier = Modifier.height(16.dp))
-
 
         }
     }
