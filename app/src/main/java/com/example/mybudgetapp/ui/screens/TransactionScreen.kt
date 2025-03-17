@@ -27,7 +27,6 @@ fun TransactionScreen(navController: NavController, viewModel: TransactionViewMo
     }
 //for common structure of  transaction screen and it include top bar and buttom bar
     Scaffold(
-        topBar = { MainTopBar(navController, title = "Transactions", onMonthYearSelected = { _, _ -> }) },
         bottomBar = { BottomBar(navController) }
     ) { innerPadding ->
         Column(
