@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mybudgetapp.ui.appbars.BottomBar
+import com.example.mybudgetapp.ui.appbars.MainTopBar
 import com.example.mybudgetapp.ui.model.Transaction
 import com.example.mybudgetapp.ui.model.TransactionType
 import com.example.mybudgetapp.ui.viewModel.TransactionViewModel
@@ -26,6 +27,7 @@ fun TransactionScreen(navController: NavController, viewModel: TransactionViewMo
     }
 //for common structure of  transaction screen and it include top bar and buttom bar
     Scaffold(
+        topBar = { MainTopBar(navController, title = "Transactions", onMonthYearSelected = { _, _ -> }) },
         bottomBar = { BottomBar(navController) }
     ) { innerPadding ->
         Column(
