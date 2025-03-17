@@ -43,6 +43,7 @@ fun HomeScreen(navController: NavController) {
     }
 
     Scaffold(
+
         topBar = { MainTopBar(navController, ::onMonthYearSelected) },
         bottomBar = { BottomBar(navController) }
     ) { innerPadding ->
