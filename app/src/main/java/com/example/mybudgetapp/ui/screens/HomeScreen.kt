@@ -37,6 +37,7 @@ import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 @Composable
 fun HomeScreen(navController: NavController, dateAndMonthViewModel: DateAndMonthViewModel) {
 
+    // List of selectable budget categories (Planned, Spent, and Remaining)
     val mainOptionList = listOf("Planned", "Spent", "Remaining")
     // Declare mutable state for selected option(planned, spent or Remaining)
     var selectedOption by remember { mutableStateOf("Planned") }
@@ -47,6 +48,7 @@ fun HomeScreen(navController: NavController, dateAndMonthViewModel: DateAndMonth
     }
 
     Scaffold (
+        // Top bar receives a function to update the selected month and year
         topBar = { MainTopBar(navController, dateAndMonthViewModel::updateMonthAndYear, ::onOptionSelected) },
         bottomBar = { BottomBar(navController) }
     ) { innerPadding ->
@@ -57,10 +59,11 @@ fun HomeScreen(navController: NavController, dateAndMonthViewModel: DateAndMonth
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Declare mutable state for selected month and year
+            // selected month and year from ViewModel
             val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
             val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
 
+            // Row for selecting "Planned", "Spent", or "Remaining"
             Row (
                 modifier = Modifier
                     .fillMaxWidth()

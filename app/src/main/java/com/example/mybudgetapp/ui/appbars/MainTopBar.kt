@@ -47,12 +47,12 @@ import java.time.format.DateTimeFormatter
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun MainTopBar(navController: NavController, onMonthYearSelected:(String,String) -> Unit, onOptionSelected:(String) -> Unit){
-    var expanded by remember {  mutableStateOf(false) }
-    var selectedMonthYear by remember { mutableStateOf("") }
+    var expanded by remember {  mutableStateOf(false) } // Controls dropdown visibility
+    var selectedMonthYear by remember { mutableStateOf("") } // Stores selected month/year
 
-    val currentDate = LocalDate.now()
-    val formatter = DateTimeFormatter.ofPattern("MMMM yyyy")
-    val monthYearList = generateMonthYearList(currentDate, 24)
+    val currentDate = LocalDate.now() // Get current date
+    val formatter = DateTimeFormatter.ofPattern("MMMM yyyy") // Format for displaying month and year
+    val monthYearList = generateMonthYearList(currentDate, 24) // Generate last 24 months for dropdown
 
 
 

@@ -18,6 +18,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 @Composable
 fun BottomBar(navController: NavController){
     val backStackEntry = navController.currentBackStackEntryAsState()
+
+    // Define bottom navigation tabs with labels, icons, and routes
     val tabs = listOf(
         TabItem("Budget", Icons.Filled.ReceiptLong, route = "home"),
         TabItem("Outflow", Icons.Filled.AttachMoney, route = "outflow"),
@@ -26,24 +28,24 @@ fun BottomBar(navController: NavController){
         TabItem("Profile", Icons.Filled.Person, route = "profile")
     )
     NavigationBar(
-        containerColor = Color.DarkGray
+        containerColor = Color.DarkGray // Set background color of the bottom navigation bar
     ) {
         tabs.forEach { tab ->
             val selected = tab.route ===
-                    backStackEntry.value?.destination?.route
+                    backStackEntry.value?.destination?.route // Check if tab is selected
             NavigationBarItem(
                 selected = selected,
                 onClick = {navController.navigate(tab.route)},
                 label = {
                     Text(
                         tab.label,
-                        color = if (selected) Color(0xFF64B5F6) else Color.LightGray
+                        color = if (selected) Color(0xFF64B5F6) else Color.LightGray // Change text color if selected
                     )
                 },
                 icon = { Icon(
                     imageVector = tab.icon,
                     contentDescription = null,
-                    tint = if (selected) Color(0xFF64B5F6) else Color.LightGray
+                    tint = if (selected) Color(0xFF64B5F6) else Color.LightGray // Change text color if selected
                 ) }
             )
         }
