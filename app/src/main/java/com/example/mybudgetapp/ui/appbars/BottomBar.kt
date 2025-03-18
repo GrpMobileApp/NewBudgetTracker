@@ -1,11 +1,11 @@
 package com.example.mybudgetapp.ui.appbars
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -21,7 +21,7 @@ fun BottomBar(navController: NavController){
 
     // Define bottom navigation tabs with labels, icons, and routes
     val tabs = listOf(
-        TabItem("Budget", Icons.Filled.ReceiptLong, route = "home"),
+        TabItem("Budget", Icons.AutoMirrored.Filled.ReceiptLong, route = "home"),
         TabItem("Outflow", Icons.Filled.AttachMoney, route = "outflow"),
         TabItem("Insights", Icons.Filled.BarChart, route = "insights"),
         TabItem("Info", Icons.Filled.Info, route = "info"),
