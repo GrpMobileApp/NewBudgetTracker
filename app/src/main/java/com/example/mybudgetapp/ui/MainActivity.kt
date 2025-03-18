@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mybudgetapp.ui.screens.HomeScreen
 import com.example.mybudgetapp.ui.screens.TransactionScreen
 import com.example.mybudgetapp.ui.theme.MyBudgetAppTheme
+import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 
 class MainActivity : ComponentActivity() {
@@ -32,11 +33,12 @@ fun MyBudgetApp() {
     val navController = rememberNavController()
     //create viewmodel instance
     val dateAndMonthViewModel:DateAndMonthViewModel = viewModel()
+    val categoryViewModel:CategoryViewModel = viewModel()
     NavHost(
         navController = navController,
         startDestination = "home"
     ){
-        composable(route = "home") { HomeScreen(navController,dateAndMonthViewModel ) }
+        composable(route = "home") { HomeScreen(navController, dateAndMonthViewModel, categoryViewModel ) }
         composable(route = "outflow") { TransactionScreen(navController, dateAndMonthViewModel) }
     }
 }
