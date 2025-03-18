@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,25 +42,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun MainTopBar(navController: NavController, onMonthYearSelected:(String,String) -> Unit ){
+fun MainTopBar(navController: NavController, dateAndMonthViewModel: DateAndMonthViewModel ){
     var expanded by remember {  mutableStateOf(false) } // Controls dropdown visibility
-    var selectedMonthYear by remember { mutableStateOf("") } // Stores selected month/year
+    val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
+    val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
+    var selectedMonthYear = "$selectedMonth $selectedYear"
 
-    val currentDate = LocalDate.now() // Get current date
-    val formatter = DateTimeFormatter.ofPattern("MMMM yyyy") // Format for displaying month and year
+    val currentDate = LocalDate.now()
     val monthYearList = generateMonthYearList(currentDate, 24) // Generate last 24 months for dropdown
-
-
-
-    // Set the default value for selectedMonthYear if it is empty
-    if (selectedMonthYear.isEmpty()) {
-        selectedMonthYear = currentDate.format(formatter)
-    }
 
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -124,7 +120,7 @@ fun MainTopBar(navController: NavController, onMonthYearSelected:(String,String)
                                     modifier = Modifier
                                         .clickable{
                                             selectedMonthYear = monthYear
-                                            onMonthYearSelected(month, year)
+                                            dateAndMonthViewModel.updateMonthAndYear(month, year)
                                             expanded = false
                                         }
                                         .background(
