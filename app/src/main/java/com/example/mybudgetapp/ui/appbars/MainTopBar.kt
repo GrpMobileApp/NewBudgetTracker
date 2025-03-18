@@ -46,7 +46,7 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun MainTopBar(navController: NavController, onMonthYearSelected:(String,String) -> Unit, onOptionSelected:(String) -> Unit){
+fun MainTopBar(navController: NavController, onMonthYearSelected:(String,String) -> Unit ){
     var expanded by remember {  mutableStateOf(false) } // Controls dropdown visibility
     var selectedMonthYear by remember { mutableStateOf("") } // Stores selected month/year
 
