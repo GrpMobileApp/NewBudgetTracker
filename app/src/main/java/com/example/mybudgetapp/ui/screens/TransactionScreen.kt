@@ -15,10 +15,11 @@ import com.example.mybudgetapp.ui.appbars.BottomBar
 import com.example.mybudgetapp.ui.appbars.MainTopBar
 import com.example.mybudgetapp.ui.model.Transaction
 import com.example.mybudgetapp.ui.model.TransactionType
+import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.TransactionViewModel
 
 @Composable
-fun TransactionScreen(navController: NavController, viewModel: TransactionViewModel = viewModel()) {
+fun TransactionScreen(navController: NavController,dateAndMonthViewModel: DateAndMonthViewModel, viewModel: TransactionViewModel = viewModel()) {
     var searchQuery by remember { mutableStateOf("") }
 
     //filter transactions when the searchQuery changes
@@ -27,6 +28,7 @@ fun TransactionScreen(navController: NavController, viewModel: TransactionViewMo
     }
 //for common structure of  transaction screen and it include top bar and buttom bar
     Scaffold(
+        topBar = { MainTopBar(navController, dateAndMonthViewModel) },
         bottomBar = { BottomBar(navController) }
     ) { innerPadding ->
         Column(
@@ -35,6 +37,10 @@ fun TransactionScreen(navController: NavController, viewModel: TransactionViewMo
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
+            // selected month and year from ViewModel
+            val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
+            val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
+
             //search bar
             OutlinedTextField(
                 value = searchQuery,
