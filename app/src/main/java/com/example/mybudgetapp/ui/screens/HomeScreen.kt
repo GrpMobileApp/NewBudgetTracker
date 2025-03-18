@@ -15,11 +15,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,23 +32,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.mybudgetapp.ui.appbars.BottomBar
 import com.example.mybudgetapp.ui.appbars.MainTopBar
+import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 
 @Composable
-fun HomeScreen(navController: NavController) {
-
-    // Declare mutable state for selected month and year
-    var selectedMonth by remember { mutableStateOf("") }
-    var selectedYear by remember { mutableStateOf("") }
+fun HomeScreen(navController: NavController, dateAndMonthViewModel: DateAndMonthViewModel) {
 
     val mainOptionList = listOf("Planned", "Spent", "Remaining")
     // Declare mutable state for selected option(planned, spent or Remaining)
     var selectedOption by remember { mutableStateOf("Planned") }
-
-    // Function to update the selected month and year
-    fun onMonthYearSelected(month: String, year: String) {
-        selectedMonth = month
-        selectedYear = year
-    }
 
     // Function to update the selected option(planned, spent or Remaining)
     fun onOptionSelected(opt: String){
@@ -57,7 +47,7 @@ fun HomeScreen(navController: NavController) {
     }
 
     Scaffold (
-        topBar = { MainTopBar(navController, ::onMonthYearSelected, ::onOptionSelected) },
+        topBar = { MainTopBar(navController, dateAndMonthViewModel::updateMonthAndYear, ::onOptionSelected) },
         bottomBar = { BottomBar(navController) }
     ) { innerPadding ->
         Column(
@@ -67,7 +57,9 @@ fun HomeScreen(navController: NavController) {
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
+            // Declare mutable state for selected month and year
+            val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
+            val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
 
             Row (
                 modifier = Modifier

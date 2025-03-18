@@ -6,12 +6,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mybudgetapp.ui.screens.HomeScreen
 import com.example.mybudgetapp.ui.screens.TransactionScreen
 import com.example.mybudgetapp.ui.theme.MyBudgetAppTheme
+import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,11 +30,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyBudgetApp() {
     val navController = rememberNavController()
+    //create viewmodel instance
+    val dateAndMonthViewModel:DateAndMonthViewModel = viewModel()
     NavHost(
         navController = navController,
         startDestination = "home"
     ){
-        composable(route = "home") { HomeScreen(navController) }
+        composable(route = "home") { HomeScreen(navController,dateAndMonthViewModel ) }
         composable(route = "outflow") { TransactionScreen(navController) }
     }
 }
