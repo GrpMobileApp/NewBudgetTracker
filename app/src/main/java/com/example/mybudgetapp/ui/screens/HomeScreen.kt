@@ -39,9 +39,11 @@ import com.example.mybudgetapp.ui.components.AddCategoryDialog
 import com.example.mybudgetapp.ui.model.CategoryItem
 import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
+import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
+import java.util.Locale.Category
 
 @Composable
-fun HomeScreen(navController: NavController, dateAndMonthViewModel: DateAndMonthViewModel, categoryViewModel: CategoryViewModel) {
+fun HomeScreen(navController: NavController, dateAndMonthViewModel: DateAndMonthViewModel, categoryViewModel: CategoryViewModel, mainCategoryViewModel: MainCategoryViewModel) {
 
     // List of selectable budget categories (Planned, Spent, and Remaining)
     val mainOptionList = listOf("Planned", "Spent", "Remaining")
@@ -52,6 +54,9 @@ fun HomeScreen(navController: NavController, dateAndMonthViewModel: DateAndMonth
     fun onOptionSelected(opt: String){
         selectedOption = opt
     }
+
+    // Collect the main category list from the mainCategoryViewModel
+    val mainCategoryList by mainCategoryViewModel.mainCategoryList.collectAsState()
 
     // Collect the category list from the CategoryViewModel
     val categoryList by categoryViewModel.categoryList.collectAsState()
@@ -116,7 +121,7 @@ fun HomeScreen(navController: NavController, dateAndMonthViewModel: DateAndMonth
                     .padding(10.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
-            ){
+            ){ mainCategoryList.forEach { category ->
                 Card (
                     modifier = Modifier
                         .fillMaxWidth()
@@ -128,7 +133,7 @@ fun HomeScreen(navController: NavController, dateAndMonthViewModel: DateAndMonth
                         modifier = Modifier.padding(10.dp)
                     ){
                         Text(
-                            text = "Income",
+                            text = category,
                         )
                         Spacer(modifier = Modifier.height(16.dp))
 
@@ -152,6 +157,8 @@ fun HomeScreen(navController: NavController, dateAndMonthViewModel: DateAndMonth
 
                     }
                 }
+            }
+
             }
         }
     }

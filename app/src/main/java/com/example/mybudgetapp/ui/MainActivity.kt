@@ -15,6 +15,7 @@ import com.example.mybudgetapp.ui.screens.TransactionScreen
 import com.example.mybudgetapp.ui.theme.MyBudgetAppTheme
 import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
+import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,11 +35,13 @@ fun MyBudgetApp() {
     //create viewmodel instance
     val dateAndMonthViewModel:DateAndMonthViewModel = viewModel()
     val categoryViewModel:CategoryViewModel = viewModel()
+    val mainCategoryViewModel:MainCategoryViewModel = viewModel()
+
     NavHost(
         navController = navController,
         startDestination = "home"
     ){
-        composable(route = "home") { HomeScreen(navController, dateAndMonthViewModel, categoryViewModel ) }
+        composable(route = "home") { HomeScreen(navController, dateAndMonthViewModel, categoryViewModel, mainCategoryViewModel ) }
         composable(route = "outflow") { TransactionScreen(navController, dateAndMonthViewModel) }
     }
 }
