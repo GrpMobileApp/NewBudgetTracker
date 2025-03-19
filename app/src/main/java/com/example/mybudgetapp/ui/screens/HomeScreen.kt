@@ -39,11 +39,18 @@ import com.example.mybudgetapp.ui.components.AddCategoryDialog
 import com.example.mybudgetapp.ui.model.CategoryItem
 import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
+import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
 import java.util.Locale.Category
 
 @Composable
-fun HomeScreen(navController: NavController, dateAndMonthViewModel: DateAndMonthViewModel, categoryViewModel: CategoryViewModel, mainCategoryViewModel: MainCategoryViewModel) {
+fun HomeScreen(
+    navController: NavController,
+    dateAndMonthViewModel: DateAndMonthViewModel,
+    categoryViewModel: CategoryViewModel,
+    mainCategoryViewModel: MainCategoryViewModel,
+    expenseViewModel: ExpenseViewModel
+) {
 
     // List of selectable budget categories (Planned, Spent, and Remaining)
     val mainOptionList = listOf("Planned", "Spent", "Remaining")
@@ -60,13 +67,13 @@ fun HomeScreen(navController: NavController, dateAndMonthViewModel: DateAndMonth
 
     // Collect the category list from the CategoryViewModel
     val categoryList by categoryViewModel.categoryList.collectAsState()
-    // State to control the visibility of the Add Category dialog
-    var showDialog by remember { mutableStateOf(false) }  // Controls popup visibility
+    // State to control the visibility of the Add Category dialog(Controls popup visibility)
+    var showDialog by remember { mutableStateOf(false) }
 
 
     Scaffold (
         // Top bar receives a function to update the selected month and year
-        topBar = { MainTopBar(navController, dateAndMonthViewModel) },
+        topBar = { MainTopBar(navController, dateAndMonthViewModel, expenseViewModel) },
         bottomBar = { BottomBar(navController) }
     ) { innerPadding ->
         Column(

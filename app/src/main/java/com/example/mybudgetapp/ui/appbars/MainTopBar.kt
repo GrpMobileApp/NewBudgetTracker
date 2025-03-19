@@ -1,6 +1,5 @@
 package com.example.mybudgetapp.ui.appbars
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,16 +9,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,17 +35,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.mybudgetapp.ui.components.AddExpenseDialog
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
+import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun MainTopBar(navController: NavController, dateAndMonthViewModel: DateAndMonthViewModel ){
+fun MainTopBar(navController: NavController, dateAndMonthViewModel: DateAndMonthViewModel, expenseViewModel: ExpenseViewModel ){
     var expanded by remember {  mutableStateOf(false) } // Controls dropdown visibility
     val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
     val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
@@ -57,6 +55,8 @@ fun MainTopBar(navController: NavController, dateAndMonthViewModel: DateAndMonth
     val currentDate = LocalDate.now()
     val monthYearList = generateMonthYearList(currentDate, 24) // Generate last 24 months for dropdown
 
+    //state control the visibility of expense adding dialog
+    var showExpenseAddDialog by remember { mutableStateOf(false) }
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
@@ -153,8 +153,31 @@ fun MainTopBar(navController: NavController, dateAndMonthViewModel: DateAndMonth
                     }
                 }
             }
+        },
+        actions = {
+            //plus icon button to add expenses
+            IconButton(
+                onClick = {showExpenseAddDialog = true}
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Add expense",
+                    tint = MaterialTheme.colorScheme.onSecondary
+
+                )
+            }
         }
     )
+    // Show dialog when user clicks on plus icon
+    if(showExpenseAddDialog){
+        AddExpenseDialog (
+            onDismiss = {showExpenseAddDialog = false},
+            onSubmit = {category, subCategory, amount ->
+                expenseViewModel.addExpenseItem(category, subCategory,amount)
+                showExpenseAddDialog = false
+            }
+        )
+    }
 }
 
 //function to create month and year list
