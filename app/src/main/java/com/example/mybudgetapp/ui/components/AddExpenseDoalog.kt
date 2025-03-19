@@ -16,9 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AddExpenseDialog(onDismiss: () -> Unit, onSubmit: (String, String, Float) -> Unit) {
+fun AddExpenseDialog(onDismiss: () -> Unit, onSubmit: (String, String, String, Float) -> Unit) {
     var category by remember  { mutableStateOf("") }
     var subCategory by remember  { mutableStateOf("") }
+    var note by remember  { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
 
     // Define the dialog UI
@@ -44,6 +45,13 @@ fun AddExpenseDialog(onDismiss: () -> Unit, onSubmit: (String, String, Float) ->
                 Spacer(modifier = Modifier.height(10.dp))
 
                 TextField(
+                    value = note,
+                    onValueChange = { subCategory = it },
+                    label = { Text("Enter a note") }
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                TextField(
                     value = amount,
                     onValueChange = { amount = it },
                     label = { Text("Enter Amount") }
@@ -57,7 +65,7 @@ fun AddExpenseDialog(onDismiss: () -> Unit, onSubmit: (String, String, Float) ->
                 onClick = {
                     val amountValue = amount.toFloatOrNull() ?: 0f
                     if (category.isNotBlank() && subCategory.isNotBlank() && amountValue > 0) {
-                        onSubmit(category, subCategory, amountValue)
+                        onSubmit(category, subCategory, note, amountValue)
                     }
                 }
             ) {
