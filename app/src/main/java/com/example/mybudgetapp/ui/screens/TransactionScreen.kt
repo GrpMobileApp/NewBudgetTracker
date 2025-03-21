@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -89,6 +90,14 @@ fun TransactionItem(transaction: Transaction) {
                     text = "€${transaction.amount}",
                     fontWeight = FontWeight.Bold,
                     color = textColor
+                )
+            }
+            //Edit icon for each list
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit Transaction",
+                    tint = Color.Gray
                 )
             }
             //Delete icon for each list
