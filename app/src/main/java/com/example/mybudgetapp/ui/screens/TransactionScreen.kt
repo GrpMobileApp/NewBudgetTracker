@@ -92,21 +92,26 @@ fun TransactionItem(transaction: Transaction) {
                     color = textColor
                 )
             }
-            //Edit icon for each list
-            IconButton(onClick = { }) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit Transaction",
-                    tint = Color.Gray
-                )
-            }
-            //Delete icon for each list
-            IconButton(onClick = { }) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete Transaction",
-                    tint = Color.Gray
-                )
+            //row to place the icons together
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                //Edit icon for each list
+                IconButton(onClick = { }) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit Transaction",
+                        tint = Color.Gray
+                    )
+                }
+                //Delete icon for each list
+                IconButton(onClick = { }) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete Transaction",
+                        tint = Color.Gray
+                    )
+                }
             }
         }
     }
