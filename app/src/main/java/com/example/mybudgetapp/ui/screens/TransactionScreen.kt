@@ -3,6 +3,8 @@ package com.example.mybudgetapp.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -64,7 +66,8 @@ fun TransactionScreen(navController: NavController,dateAndMonthViewModel: DateAn
 //to display each individual transaction in the list
 @Composable
 fun TransactionItem(transaction: Transaction) {
-    val backgroundColor = if (transaction.type == TransactionType.INCOME) Color(0xFFD0F0C0) else Color(0xFFFFD6D6)
+    val backgroundColor =
+        if (transaction.type == TransactionType.INCOME) Color(0xFFD0F0C0) else Color(0xFFFFD6D6)
     val textColor = if (transaction.type == TransactionType.INCOME) Color(0xFF006400) else Color.Red
 //display each transaction in a material-styled container with padding
     Card(
@@ -73,13 +76,29 @@ fun TransactionItem(transaction: Transaction) {
             .padding(vertical = 8.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = transaction.name, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                text = "€${transaction.amount}",
-                fontWeight = FontWeight.Bold,
-                color = textColor
-            )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween // Align items to opposite ends
+        )
+        {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = transaction.name, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = "€${transaction.amount}",
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
+                )
+            }
+            //Delete icon for each list
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete Transaction",
+                    tint = Color.Gray
+                )
+            }
         }
     }
 }
