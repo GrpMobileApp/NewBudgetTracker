@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mybudgetapp.ui.screens.HomeScreen
+import com.example.mybudgetapp.ui.screens.InfoScreen
 import com.example.mybudgetapp.ui.screens.TransactionScreen
 import com.example.mybudgetapp.ui.theme.MyBudgetAppTheme
 import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
@@ -45,6 +46,7 @@ fun MyBudgetApp() {
     ){
         composable(route = "home") { HomeScreen(navController, dateAndMonthViewModel, categoryViewModel, mainCategoryViewModel, expenseViewModel ) }
         composable(route = "outflow") { TransactionScreen(navController, dateAndMonthViewModel, expenseViewModel) }
+        composable(route = "info") { InfoScreen(navController) }
     }
 }
 
