@@ -18,6 +18,7 @@ import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -23,16 +24,29 @@ import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.TransactionViewModel
 
 @Composable
-fun TransactionScreen(navController: NavController,dateAndMonthViewModel: DateAndMonthViewModel, expenseViewModel: ExpenseViewModel, viewModel: TransactionViewModel = viewModel()) {
+fun TransactionScreen(
+    navController: NavController,
+    dateAndMonthViewModel: DateAndMonthViewModel,
+    expenseViewModel: ExpenseViewModel,
+    viewModel: TransactionViewModel = viewModel()
+) {
     var searchQuery by remember { mutableStateOf("") }
 
-    //filter transactions when the searchQuery changes
-    val filteredTransactions by remember(searchQuery) {
-        mutableStateOf(viewModel.getFilteredTransactions(searchQuery))
+    //observe transactions from the ViewModel
+    val transactions by viewModel.transactions.observeAsState(emptyList())
+
+    //filter transactions based on search query using the ViewModel method
+    val filteredTransactions = remember(searchQuery, transactions) {
+        viewModel.filterTransactions(searchQuery)
     }
-//for common structure of  transaction screen and it include top bar and buttom bar
+
+    //load transactions from firestore when the screen is created
+    LaunchedEffect(Unit) {
+        viewModel.loadTransactions()
+    }
+
     Scaffold(
-        topBar = { MainTopBar(navController, dateAndMonthViewModel, expenseViewModel ) },
+        topBar = { MainTopBar(navController, dateAndMonthViewModel, expenseViewModel) },
         bottomBar = { BottomBar(navController) }
     ) { innerPadding ->
         Column(
@@ -41,7 +55,7 @@ fun TransactionScreen(navController: NavController,dateAndMonthViewModel: DateAn
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            // selected month and year from ViewModel
+            //selected month and year from ViewModel
             val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
             val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
 
@@ -54,7 +68,7 @@ fun TransactionScreen(navController: NavController,dateAndMonthViewModel: DateAn
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            //display transactions
+            //display filtered transactions
             LazyColumn {
                 items(filteredTransactions) { transaction ->
                     TransactionItem(transaction)
@@ -64,13 +78,14 @@ fun TransactionScreen(navController: NavController,dateAndMonthViewModel: DateAn
     }
 }
 
-//to display each individual transaction in the list
+
 @Composable
 fun TransactionItem(transaction: Transaction) {
     val backgroundColor =
-        if (transaction.type == TransactionType.INCOME) Color(0xFFD0F0C0) else Color(0xFFFFD6D6)
-    val textColor = if (transaction.type == TransactionType.INCOME) Color(0xFF006400) else Color.Red
-//display each transaction in a material-styled container with padding
+        if (transaction.getTransactionType() == TransactionType.INCOME) Color(0xFFD0F0C0) else Color(0xFFFFD6D6)
+    val textColor = if (transaction.getTransactionType() == TransactionType.INCOME) Color(0xFF006400) else Color.Red
+
+    //display each transaction in a material-styled container with padding
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -81,22 +96,20 @@ fun TransactionItem(transaction: Transaction) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween // Align items to opposite ends
-        )
-        {
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = transaction.name, style = MaterialTheme.typography.bodyLarge)
+                Text(text = transaction.subCategoryName, style = MaterialTheme.typography.bodyLarge)
                 Text(
                     text = "€${transaction.amount}",
                     fontWeight = FontWeight.Bold,
                     color = textColor
                 )
             }
+
             //row to place the icons together
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                //Edit icon for each list
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                //edit icon for each list
                 IconButton(onClick = { }) {
                     Icon(
                         imageVector = Icons.Default.Edit,
@@ -104,7 +117,8 @@ fun TransactionItem(transaction: Transaction) {
                         tint = Color.Gray
                     )
                 }
-                //Delete icon for each list
+
+                //delete icon for each list
                 IconButton(onClick = { }) {
                     Icon(
                         imageVector = Icons.Default.Delete,
