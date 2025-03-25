@@ -21,6 +21,10 @@ class TransactionViewModel : ViewModel() {
                 val transactionList = mutableListOf<Transaction>()
                 for (document in result) {
                     val transaction = document.toObject(Transaction::class.java)
+
+                    //check whether the list subcategory name is showing or not
+                    Log.d("Firestore", "Transaction: ${transaction.subCategoryName}")
+
                     transactionList.add(transaction)
                 }
                 _transactions.value = transactionList //update LiveData
