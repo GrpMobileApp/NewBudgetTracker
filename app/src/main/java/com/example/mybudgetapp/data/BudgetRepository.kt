@@ -8,7 +8,7 @@ class BudgetRepository {
 
     // Function to get budget document ID based on month and year
     fun getBudgetId(userId: String, month: String, year: String, onResult: (String?) -> Unit) {
-        db.collection("users").document(userId).collection("budget")
+        db.collection("Users").document(userId).collection("monthly_budgets")
             .whereEqualTo("month", month)  // Filter by month
             .whereEqualTo("year", year)    // Filter by year
             .get()

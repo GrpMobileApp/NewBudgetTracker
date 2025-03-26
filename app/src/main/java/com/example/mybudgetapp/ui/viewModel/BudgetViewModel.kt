@@ -1,8 +1,9 @@
 package com.example.mybudgetapp.ui.viewModel
 
+import androidx.lifecycle.ViewModel
 import com.example.mybudgetapp.data.BudgetRepository
 
-class BudgetViewModel {
+class BudgetViewModel:ViewModel() {
     private val repository = BudgetRepository()
 
     fun getBudgetId(userId: String, month: String, year: String, onResult: (String?) -> Unit) {
