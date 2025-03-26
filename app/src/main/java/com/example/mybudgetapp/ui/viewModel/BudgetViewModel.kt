@@ -8,4 +8,8 @@ class BudgetViewModel {
     fun getBudgetId(userId: String, month: String, year: String, onResult: (String?) -> Unit) {
         repository.getBudgetId(userId, month, year, onResult)
     }
+
+    fun saveBudget(userId: String, month:String, year: String, onResult: (Boolean) -> Unit) {
+        repository.storeBudget(userId, month, year, onResult)
+    }
 }
