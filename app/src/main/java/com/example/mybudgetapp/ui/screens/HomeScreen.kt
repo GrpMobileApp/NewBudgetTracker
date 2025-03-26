@@ -189,10 +189,47 @@ fun HomeScreen(
 
                 }
             } else {
-                Text(
-                    text = "No id found to month $selectedMonth $selectedYear",
-                    fontSize = 20.sp
-                )
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 25.dp, start = 10.dp, end = 10.dp),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 10.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Let's plan your month",
+                            fontSize = 20.sp
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Image(
+                            painter = painterResource(id = R.drawable.budget),
+                            contentDescription = "budget"
+                        )
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Text(
+                            text = "Select the relavant month in topbar",
+                            fontSize = 20.sp
+                        )
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Button(onClick = {}
+                        ) {
+                            Text(
+                                text = "Start planning",
+                                fontSize = 20.sp
+                            )
+                        }
+
+                    }
+                }
             }
 
         }
