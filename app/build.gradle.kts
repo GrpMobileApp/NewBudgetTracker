@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.mybudgetapp"
+    namespace = "com.example.mybudgetapp.ui"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.mybudgetapp"
+        applicationId = "com.example.mybudgetapp.ui"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
