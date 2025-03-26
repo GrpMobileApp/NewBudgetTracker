@@ -7,36 +7,7 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:646914015717:android:1e8e876e75e81aebd56f0c",
-        "android_client_info": {
-          "package_name": "com.example.mybudgetapp"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "646914015717-etefcarudcghflettqm4b3jb6gmrqcjp.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyB8awPLpcXy9sv4G_XOcfCCAJIA66vonWQ"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "646914015717-etefcarudcghflettqm4b3jb6gmrqcjp.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:646914015717:android:eb2bb04728675587d56f0c",
+        "mobilesdk_app_id": "1:646914015717:android:93dcafe28d0c8a3ed56f0c",
         "android_client_info": {
           "package_name": "com.example.mybudgetapp.ui"
         }
