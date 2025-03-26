@@ -4,7 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -23,37 +27,26 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        /*This is the correct one but still not implemented
         setContent {
             MyBudgetAppTheme {
-                MyBudgetApp()
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Navigation(
+                        modifier = Modifier.padding(innerPadding),
+                        authViewModel = authViewModel,
+                        activity = this
+                    )
+                }
+            }
+        }*/
+        setContent {
+            MyBudgetAppTheme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Navigation(modifier = Modifier.padding(innerPadding),
+                        activity = this)
+                }
             }
         }
-    }
-}
-
-@Composable
-fun MyBudgetApp() {
-    val navController = rememberNavController()
-    //create viewmodel instance
-    val dateAndMonthViewModel:DateAndMonthViewModel = viewModel()
-    val categoryViewModel:CategoryViewModel = viewModel()
-    val mainCategoryViewModel:MainCategoryViewModel = viewModel()
-    val expenseViewModel:ExpenseViewModel = viewModel()
-
-    NavHost(
-        navController = navController,
-        startDestination = "home"
-    ){
-        composable(route = "home") { HomeScreen(navController, dateAndMonthViewModel, categoryViewModel, mainCategoryViewModel, expenseViewModel ) }
-        composable(route = "outflow") { TransactionScreen(navController, dateAndMonthViewModel, expenseViewModel) }
-        composable(route = "info") { InfoScreen(navController) }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyBudgetAppTheme {
-        MyBudgetApp()
     }
 }
