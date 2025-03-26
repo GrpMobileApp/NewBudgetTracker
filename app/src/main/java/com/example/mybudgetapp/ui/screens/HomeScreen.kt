@@ -41,6 +41,7 @@ import androidx.navigation.NavController
 import com.example.mybudgetapp.R
 import com.example.mybudgetapp.ui.appbars.BottomBar
 import com.example.mybudgetapp.ui.appbars.MainTopBar
+import com.example.mybudgetapp.ui.compone.HomeScreenContent
 import com.example.mybudgetapp.ui.components.AddCategoryDialog
 import com.example.mybudgetapp.ui.model.CategoryItem
 import com.example.mybudgetapp.ui.viewModel.BudgetViewModel
@@ -107,87 +108,7 @@ fun HomeScreen(
 
             // Handle UI based on budgetId
             if (budgetId != null){
-                // Row for selecting "Planned", "Spent", or "Remaining"
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Gray)
-                        .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)
-                ){
-                    mainOptionList.forEach{option ->
-                        val isSelected = option == selectedOption
-                        Box (
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable{
-                                    selectedOption = option
-                                }
-                                .background(
-                                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.primary,
-                                    shape = RoundedCornerShape(16.dp)
-                                )
-                                .padding(vertical = 8.dp)
-
-
-                        ){
-                            Text(
-                                text = option,
-                                color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White ,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
-
-                //content of home screen
-                Column (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ){ mainCategoryList.forEach { category ->
-                    Card (
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                        elevation  = CardDefaults.elevatedCardElevation(defaultElevation = 10.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-                    ){
-                        Column (
-                            modifier = Modifier.padding(10.dp)
-                        ){
-                            Text(
-                                text = category,
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            categoryList.forEachIndexed { index, cat ->
-                                Row (
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 4.dp), // Space between items
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ){
-                                    Text(text = cat.category, fontSize = 15.sp)
-                                    Text(text = cat.amount.toString(),fontSize = 15.sp)
-                                }
-                            }
-                            // "Add Item" button
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Button(onClick = { showDialog = true }) {
-                                Text("Add Category")
-                            }
-
-                        }
-                    }
-                }
-
-                }
+                HomeScreenContent(mainCategoryViewModel, categoryViewModel)
             } else {
                 Card(
                     modifier = Modifier
