@@ -96,7 +96,7 @@ fun HomeScreen(
             }
 
             // Handle UI based on budgetId
-            if (budgetId != null){
+            if (budgetId != null || isPlanningStarted){
                 HomeScreenContent(mainCategoryViewModel, categoryViewModel)
             } else {
                 Card(
