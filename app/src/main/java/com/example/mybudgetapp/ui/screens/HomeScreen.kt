@@ -44,6 +44,7 @@ import com.example.mybudgetapp.ui.appbars.BottomBar
 import com.example.mybudgetapp.ui.appbars.MainTopBar
 import com.example.mybudgetapp.ui.compone.HomeScreenContent
 import com.example.mybudgetapp.ui.components.AddCategoryDialog
+import com.example.mybudgetapp.ui.components.StartPlanning
 import com.example.mybudgetapp.ui.model.CategoryItem
 import com.example.mybudgetapp.ui.viewModel.BudgetViewModel
 import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
@@ -65,23 +66,8 @@ fun HomeScreen(
     // State to hold the budgetId
     var budgetId by remember { mutableStateOf<String?>(null) }
 
-    // List of selectable budget categories (Planned, Spent, and Remaining)
-    val mainOptionList = listOf("Planned", "Spent", "Remaining")
-    // Declare mutable state for selected option(planned, spent or Remaining)
-    var selectedOption by remember { mutableStateOf("Planned") }
-
-    // Function to update the selected option(planned, spent or Remaining)
-    fun onOptionSelected(opt: String){
-        selectedOption = opt
-    }
-
-    // Collect the main category list from the mainCategoryViewModel
-    val mainCategoryList by mainCategoryViewModel.mainCategoryList.collectAsState()
-
-    // Collect the category list from the CategoryViewModel
-    val categoryList by categoryViewModel.categoryList.collectAsState()
-    // State to control the visibility of the Add Category dialog(Controls popup visibility)
-    var showDialog by remember { mutableStateOf(false) }
+    // Track plan button click state
+    var isPlanningStarted by remember { mutableStateOf(false) }
 
     // Context for Toast
     val context = LocalContext.current
@@ -152,6 +138,9 @@ fun HomeScreen(
                                     if (success) "Budget saved successfully!" else "Failed to save budget!",
                                     Toast.LENGTH_SHORT
                                 ).show()
+
+                                // Trigger the display of the StartPlanning composable
+                                isPlanningStarted = true
                             }
                         }
                         ) {
@@ -164,17 +153,11 @@ fun HomeScreen(
                     }
                 }
             }
-
-        }
-    }
-    // Show dialog when user clicks "Add Category"
-    if (showDialog) {
-        AddCategoryDialog (
-            onDismiss = { showDialog = false },
-            onSubmit = { category, amount ->
-                categoryViewModel.addCategoryItem(category, amount )
-                showDialog = false
+            // Conditionally render StartPlanning composable
+            if (isPlanningStarted) {
+                StartPlanning(budgetViewModel, dateAndMonthViewModel, mainCategoryViewModel)
+                HomeScreenContent(mainCategoryViewModel, categoryViewModel)
             }
-        )
+        }
     }
 }
