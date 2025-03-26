@@ -30,9 +30,9 @@ class BudgetRepository {
             val budget = hashMapOf("month" to month, "year" to year)
 
             // Navigating to the right path: users -> userId -> budget -> budgetId -> maincategory
-            db.collection("users")
+            db.collection("Users")
                 .document(userId) // User document
-                .collection("budget") // MainCategory collection
+                .collection("monthly_budgets") // MainCategory collection
                 .add(budget) // Add the main category
                 .addOnSuccessListener { onResult(true) } // Success callback
                 .addOnFailureListener { onResult(false) } // Failure callback

@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -82,6 +83,8 @@ fun HomeScreen(
     // State to control the visibility of the Add Category dialog(Controls popup visibility)
     var showDialog by remember { mutableStateOf(false) }
 
+    // Context for Toast
+    val context = LocalContext.current
 
     Scaffold (
         // Top bar receives a function to update the selected month and year
@@ -141,7 +144,16 @@ fun HomeScreen(
 
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        Button(onClick = {}
+                        Button(onClick = {
+                            // Save budget on button click
+                            budgetViewModel.saveBudget(userId, selectedMonth, selectedYear) { success ->
+                                Toast.makeText(
+                                    context,
+                                    if (success) "Budget saved successfully!" else "Failed to save budget!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
                         ) {
                             Text(
                                 text = "Start planning",
