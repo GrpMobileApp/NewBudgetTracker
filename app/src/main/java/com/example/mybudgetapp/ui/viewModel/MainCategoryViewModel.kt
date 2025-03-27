@@ -18,4 +18,9 @@ class MainCategoryViewModel: ViewModel() {
     fun saveMainCategory(userId: String, budgetId:String, name: String, onResult: (Boolean) -> Unit) {
         repository.saveMainCategory(userId, budgetId, name, onResult)
     }
+
+    //Fetch main category id for the given user, budget and category name.
+    fun fetchMainCategory(userId: String, budgetId:String, name: String, onResult: (String?) -> Unit){
+        repository.getMainCategoryId(userId, budgetId, name, onResult)
+    }
 }

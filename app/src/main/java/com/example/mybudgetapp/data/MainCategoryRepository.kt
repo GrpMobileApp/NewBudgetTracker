@@ -1,5 +1,6 @@
 package com.example.mybudgetapp.data
 
+import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 
 class MainCategoryRepository {
@@ -19,5 +20,28 @@ class MainCategoryRepository {
             .add(mainCategory) // Add the main category
             .addOnSuccessListener { onResult(true) } // Success callback
             .addOnFailureListener { onResult(false) } // Failure callback
+    }
+
+    //Function to get main category id
+    fun getMainCategoryId(userId: String, budgetId: String, categoryName:String, onResult: (String?) -> Unit){
+        db.collection("Users")
+            .document(userId)
+            .collection("monthly_budgets")
+            .document(budgetId)
+            .collection("main_categories")
+            .whereEqualTo("name", categoryName)  // Filter by name
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val categoryDoc = documents.first()
+                    onResult(categoryDoc.id)  // Return the budget ID
+                } else {
+                    onResult(null) // No matching budget found
+                }
+            }
+            .addOnFailureListener {exception ->
+                Log.e("FirestoreError", "Failed to fetch category-id: ${exception.message}")
+                onResult(null)
+            }
     }
 }
