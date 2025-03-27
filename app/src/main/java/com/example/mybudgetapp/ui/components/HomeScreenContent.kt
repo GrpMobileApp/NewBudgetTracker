@@ -108,7 +108,7 @@ fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel,categoryViewM
                     modifier = Modifier.padding(10.dp)
                 ) {
                     Text(
-                        text = category,
+                        text = category.uppercase(),
                     )
                     Spacer(modifier = Modifier.height(16.dp))
 
