@@ -51,6 +51,7 @@ import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
+import com.example.mybudgetapp.ui.viewModel.SharedViewModel
 import java.util.Locale.Category
 
 @Composable
@@ -62,9 +63,10 @@ fun HomeScreen(
     expenseViewModel: ExpenseViewModel
 ) {
     val budgetViewModel: BudgetViewModel = viewModel()
+    val sharedViewModel: SharedViewModel = viewModel()
 
     // State to hold the budgetId
-    var budgetId by remember { mutableStateOf<String?>(null) }
+    val budgetId by sharedViewModel.budgetId.collectAsState()
 
     // Track plan button click state
     var isPlanningStarted by remember { mutableStateOf(false) }
@@ -91,7 +93,7 @@ fun HomeScreen(
             // Fetch the budgetId when the month and year changes
             LaunchedEffect(selectedMonth.toString(), selectedYear.toString()) {
                 budgetViewModel.getBudgetId(userId, selectedMonth, selectedYear) { id ->
-                    budgetId = id
+                    sharedViewModel.setBudgetId(id)
                 }
             }
 
