@@ -1,4 +1,4 @@
-package com.example.mybudgetapp.ui.compone
+package com.example.mybudgetapp.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,12 +30,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mybudgetapp.ui.components.AddCategoryDialog
-import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
+import com.example.mybudgetapp.ui.viewModel.SubCategoryViewModel
 
 @Composable
-fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel,categoryViewModel: CategoryViewModel) {
+fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel,subCategoryViewModel: SubCategoryViewModel) {
     // List of selectable budget categories (Planned, Spent, and Remaining)
     val mainOptionList = listOf("Planned", "Spent", "Remaining")
     // Declare mutable state for selected option(planned, spent or Remaining)
@@ -49,7 +48,7 @@ fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel,categoryViewM
     val mainCategoryList by mainCategoryViewModel.mainCategoryList.collectAsState()
 
     // Collect the category list from the CategoryViewModel
-    val categoryList by categoryViewModel.categoryList.collectAsState()
+    val categoryList by subCategoryViewModel.categoryList.collectAsState()
 
     // State to control the visibility of the Add Category dialog(Controls popup visibility)
     var showDialog by remember { mutableStateOf(false) }
@@ -139,7 +138,7 @@ fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel,categoryViewM
         AddCategoryDialog (
             onDismiss = { showDialog = false },
             onSubmit = { category, amount ->
-                categoryViewModel.addCategoryItem(category, amount )
+                subCategoryViewModel.addCategoryItem(category, amount )
                 showDialog = false
             }
         )

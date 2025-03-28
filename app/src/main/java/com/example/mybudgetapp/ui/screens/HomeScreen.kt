@@ -4,18 +4,10 @@ package com.example.mybudgetapp.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -31,10 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,23 +32,20 @@ import androidx.navigation.NavController
 import com.example.mybudgetapp.R
 import com.example.mybudgetapp.ui.appbars.BottomBar
 import com.example.mybudgetapp.ui.appbars.MainTopBar
-import com.example.mybudgetapp.ui.compone.HomeScreenContent
-import com.example.mybudgetapp.ui.components.AddCategoryDialog
+import com.example.mybudgetapp.ui.components.HomeScreenContent
 import com.example.mybudgetapp.ui.components.StartPlanning
-import com.example.mybudgetapp.ui.model.CategoryItem
 import com.example.mybudgetapp.ui.viewModel.BudgetViewModel
-import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.SharedViewModel
-import java.util.Locale.Category
+import com.example.mybudgetapp.ui.viewModel.SubCategoryViewModel
 
 @Composable
 fun HomeScreen(
     navController: NavController,
     dateAndMonthViewModel: DateAndMonthViewModel,
-    categoryViewModel: CategoryViewModel,
+    subCategoryViewModel: SubCategoryViewModel,
     mainCategoryViewModel: MainCategoryViewModel,
     expenseViewModel: ExpenseViewModel
 ) {
@@ -99,7 +86,7 @@ fun HomeScreen(
 
             // Handle UI based on budgetId
             if (budgetId != null || isPlanningStarted){
-                HomeScreenContent(mainCategoryViewModel, categoryViewModel)
+                HomeScreenContent(mainCategoryViewModel, subCategoryViewModel)
             } else {
                 Card(
                     modifier = Modifier
@@ -158,7 +145,7 @@ fun HomeScreen(
             // Conditionally render StartPlanning composable
             if (isPlanningStarted) {
                 StartPlanning(budgetViewModel, dateAndMonthViewModel, mainCategoryViewModel)
-                HomeScreenContent(mainCategoryViewModel, categoryViewModel)
+                HomeScreenContent(mainCategoryViewModel, subCategoryViewModel)
             }
         }
     }

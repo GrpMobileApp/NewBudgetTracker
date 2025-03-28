@@ -16,10 +16,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mybudgetapp.ui.screens.HomeScreen
 import com.example.mybudgetapp.ui.screens.InfoScreen
 import com.example.mybudgetapp.ui.screens.TransactionScreen
-import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
+import com.example.mybudgetapp.ui.viewModel.SubCategoryViewModel
 
 
 @Composable
@@ -28,7 +28,7 @@ fun Navigation(modifier: Modifier = Modifier, activity: Activity) {
     val navController = rememberNavController()
     //create viewmodel instance
     val dateAndMonthViewModel:DateAndMonthViewModel = viewModel()
-    val categoryViewModel:CategoryViewModel = viewModel()
+    val subCategoryViewModel:SubCategoryViewModel = viewModel()
     val mainCategoryViewModel:MainCategoryViewModel = viewModel()
     val expenseViewModel:ExpenseViewModel = viewModel()
 
@@ -38,7 +38,7 @@ fun Navigation(modifier: Modifier = Modifier, activity: Activity) {
         composable(route = "home") {
             HomeScreen(navController,
                 dateAndMonthViewModel,
-                categoryViewModel,
+                subCategoryViewModel,
                 mainCategoryViewModel,
                 expenseViewModel )
         }
@@ -46,14 +46,14 @@ fun Navigation(modifier: Modifier = Modifier, activity: Activity) {
         composable(route = "home") {
             HomeScreen(navController,
                 dateAndMonthViewModel,
-                categoryViewModel,
+                subCategoryViewModel,
                 mainCategoryViewModel,
                 expenseViewModel )
         }
         composable(route = "home") {
             HomeScreen(navController,
                 dateAndMonthViewModel,
-                categoryViewModel,
+                subCategoryViewModel,
                 mainCategoryViewModel,
                 expenseViewModel )
         }
