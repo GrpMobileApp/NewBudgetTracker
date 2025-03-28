@@ -8,6 +8,9 @@ enum class TransactionType { INCOME, EXPENSE }
 
 // Represents each transaction
 data class Transaction(
+    var id: String = "",  //Firestore document ID
+
+
     @get:PropertyName("amount") @set:PropertyName("amount")
     var amount: Any = 0.0, //can be String or Double
 
@@ -43,6 +46,7 @@ data class Transaction(
         return when (amount) {
             is String -> (amount as String).toDoubleOrNull() ?: 0.0
             is Double -> amount as Double
+            is Long -> (amount as Long).toDouble()  //handle Long type
             else -> 0.0
         }
     }
