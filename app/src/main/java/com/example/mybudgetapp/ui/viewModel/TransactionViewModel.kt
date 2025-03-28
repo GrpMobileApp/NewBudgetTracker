@@ -26,7 +26,8 @@ class TransactionViewModel : ViewModel() {
 
                 for (document in result) {
                     val transaction = document.toObject(Transaction::class.java)
-                    Log.d("Firestore", "Transaction ID: ${document.id} - SubCategory: ${transaction.subCategoryName}")
+                    transaction.id = document.id  // Assign Firestore document ID
+                    Log.d("Firestore", "Transaction ID: ${transaction.id} - SubCategory: ${transaction.subCategoryName}")
                     transactionList.add(transaction)
                 }
 
@@ -39,8 +40,30 @@ class TransactionViewModel : ViewModel() {
     }
 
 
+
     //filter transactions directly in the UI.
     fun filterTransactions(query: String): List<Transaction> {
         return _transactions.value?.filter { it.subCategoryName.contains(query, ignoreCase = true) } ?: emptyList()
     }
+
+    //to delete transaction
+    fun deleteTransaction(transaction: Transaction) {
+        if (transaction.id.isNotEmpty()) {
+            db.collection("transactions").document(transaction.id)
+                .delete()
+                .addOnSuccessListener {
+                    Log.d("Firestore", "Transaction successfully deleted!")
+                    // Update LiveData by removing the deleted transaction
+                    _transactions.value = _transactions.value?.filterNot { it.id == transaction.id }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("Firestore", "Error deleting transaction", e)
+                }
+        } else {
+            Log.e("Firestore", "Transaction ID is empty, cannot delete.")
+        }
+    }
+
 }
+
+

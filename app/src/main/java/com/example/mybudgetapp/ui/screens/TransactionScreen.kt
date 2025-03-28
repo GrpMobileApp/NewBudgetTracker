@@ -73,7 +73,7 @@ fun TransactionScreen(
             //display filtered transactions
             LazyColumn {
                 items(filteredTransactions) { transaction ->
-                    TransactionItem(transaction)
+                    TransactionItem(transaction, viewModel)
                 }
             }
         }
@@ -82,12 +82,42 @@ fun TransactionScreen(
 
 
 @Composable
-fun TransactionItem(transaction: Transaction) {
+fun TransactionItem(transaction: Transaction, viewModel: TransactionViewModel) {
+    //state variable to control the visibility of the delete confirmation dialog
+    var showDialog by remember { mutableStateOf(false) }
+
+    //determine the background color based on the transaction type
     val backgroundColor =
         if (transaction.getTransactionType() == TransactionType.INCOME) Color(0xFFD0F0C0) else Color(0xFFFFD6D6)
+    //determine the text color based on the transaction type
     val textColor = if (transaction.getTransactionType() == TransactionType.INCOME) Color(0xFF006400) else Color.Red
 
-    //display each transaction in a material-styled container with padding
+    //display an alert dialog when the user attempts to delete a transaction
+    if (showDialog) {
+        AlertDialog(
+            //close dialog when dismissed
+            onDismissRequest = { showDialog = false },
+            title = { Text("Delete Transaction") },
+            text = { Text("Are you sure you want to delete this transaction?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    //call ViewModel to delete transaction
+                    viewModel.deleteTransaction(transaction)
+                    //close the dialog after deletion
+                    showDialog = false
+                }) {
+                    Text("Delete", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    //close dialog without deleting
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+    //card layout to display the transaction details
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -100,18 +130,18 @@ fun TransactionItem(transaction: Transaction) {
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            //column for transaction details subcategory name and amount
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(text = transaction.subCategoryName, style = MaterialTheme.typography.bodyLarge)
                 Text(
-                    text = "€${transaction.amount}",
+                    //convert amount safely to double
+                    text = "€${transaction.getAmountAsDouble()}",
                     fontWeight = FontWeight.Bold,
                     color = textColor
                 )
             }
-
-            //row to place the icons together
+            //row for edit and delete buttons
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                //edit icon for each list
                 IconButton(onClick = { }) {
                     Icon(
                         imageVector = Icons.Default.Edit,
@@ -120,8 +150,7 @@ fun TransactionItem(transaction: Transaction) {
                     )
                 }
 
-                //delete icon for each list
-                IconButton(onClick = { }) {
+                IconButton(onClick = { showDialog = true }) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Delete Transaction",
