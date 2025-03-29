@@ -82,6 +82,7 @@ fun HomeScreen(
                 budgetViewModel.getBudgetId(userId, selectedMonth, selectedYear) { id ->
                     sharedViewModel.setBudgetId(id)
                 }
+                isPlanningStarted = false
             }
 
             // Handle UI based on budgetId
@@ -144,8 +145,9 @@ fun HomeScreen(
             }
             // Conditionally render StartPlanning composable
             if (isPlanningStarted) {
-                StartPlanning(budgetViewModel, dateAndMonthViewModel, mainCategoryViewModel)
-                HomeScreenContent(mainCategoryViewModel, subCategoryViewModel)
+                StartPlanning(subCategoryViewModel, dateAndMonthViewModel, mainCategoryViewModel)
+                //HomeScreenContent(mainCategoryViewModel, subCategoryViewModel)
+
             }
         }
     }

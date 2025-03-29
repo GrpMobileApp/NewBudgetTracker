@@ -1,6 +1,9 @@
 package com.example.mybudgetapp.ui.viewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mybudgetapp.data.BudgetRepository
 import com.example.mybudgetapp.data.MainCategoryRepository
 import com.example.mybudgetapp.data.MainCategoryWithSubcategories
 import com.example.mybudgetapp.data.SubCategoryRepository
@@ -13,6 +16,9 @@ class MainCategoryViewModel: ViewModel() {
     // Repository instance to handle data operations
     private val repository = MainCategoryRepository()
     private val subCategoryRepository = SubCategoryRepository()
+    private  val budgetRepository = BudgetRepository()
+
+
     private val _mainCategoryWithSubcategories = MutableStateFlow<List<MainCategoryWithSubcategories>>(
         emptyList()
     )
@@ -24,6 +30,27 @@ class MainCategoryViewModel: ViewModel() {
         )
     )
     val mainCategoryList = _mainCategoryList
+
+    // Function to get and save main categories
+    fun saveMainCategories(userId: String, month: String, year: String, onResult: (Boolean) -> Unit) {
+        // Fetch the budgetId
+        budgetRepository.getBudgetId(userId, month, year) { budgetId ->
+            // If the budgetId is valid, save categories
+            budgetId?.let { validBudgetId ->
+                mainCategoryList.value.forEach { category ->
+                    saveMainCategory(userId, validBudgetId, category) { success ->
+                        if (success) {
+                            Log.d("MainCategoryViewModel", "Category '$category' saved.")
+                        } else {
+                            Log.e("MainCategoryViewModel", "Failed to save category '$category'.")
+                        }
+                    }
+                }
+                // Trigger the result callback after saving
+                onResult(true)
+            } ?: onResult(false)
+        }
+    }
 
     //Saves a new main category for the given user and budget.
     fun saveMainCategory(userId: String, budgetId:String, name: String, onResult: (Boolean) -> Unit) {

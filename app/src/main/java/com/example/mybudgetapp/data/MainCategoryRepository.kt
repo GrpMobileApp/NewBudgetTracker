@@ -12,9 +12,7 @@ class MainCategoryRepository {
         val mainCategory = hashMapOf("name" to name)
 
         // Navigating to the right path
-        db.collection("Users")
-            .document(userId) // User document
-            .collection("monthly_budgets") // Budget collection
+        db.collection("monthly_budgets")
             .document(budgetId) // Budget document
             .collection("main_categories") // MainCategory collection
             .add(mainCategory) // Add the main category
@@ -24,9 +22,7 @@ class MainCategoryRepository {
 
     //Function to get main category id
     fun getMainCategoryId(userId: String, budgetId: String, categoryName:String, onResult: (String?) -> Unit){
-        db.collection("Users")
-            .document(userId)
-            .collection("monthly_budgets")
+        db.collection("monthly_budgets")
             .document(budgetId)
             .collection("main_categories")
             .whereEqualTo("name", categoryName)  // Filter by name
