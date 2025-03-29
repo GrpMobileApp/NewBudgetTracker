@@ -4,10 +4,13 @@ package com.example.mybudgetapp.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -23,8 +26,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -61,6 +66,16 @@ fun HomeScreen(
     // Context for Toast
     val context = LocalContext.current
 
+    // List of selectable budget categories (Planned, Spent, and Remaining)
+    val mainOptionList = listOf("Planned", "Spent", "Remaining")
+    // Declare mutable state for selected option(planned, spent or Remaining)
+    var selectedOption by remember { mutableStateOf("Planned") }
+
+    // Function to update the selected option(planned, spent or Remaining)
+    fun onOptionSelected(opt: String) {
+        selectedOption = opt
+    }
+
     Scaffold (
         // Top bar receives a function to update the selected month and year
         topBar = { MainTopBar(navController, dateAndMonthViewModel, expenseViewModel) },
@@ -85,6 +100,36 @@ fun HomeScreen(
                 isPlanningStarted = false
             }
 
+            // Content Row for main category options
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Gray)
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                mainOptionList.forEach { option ->
+                    val isSelected = option == selectedOption
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { selectedOption = option }
+                            .background(
+                                color = if (isSelected) Color.White else MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .padding(vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = option,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
             // Handle UI based on budgetId
             if (budgetId != null || isPlanningStarted){
                 HomeScreenContent(mainCategoryViewModel, subCategoryViewModel)

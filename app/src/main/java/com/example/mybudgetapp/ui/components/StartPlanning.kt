@@ -17,6 +17,7 @@ import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.SharedViewModel
 import com.example.mybudgetapp.ui.viewModel.SubCategoryViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun StartPlanning(
@@ -32,15 +33,15 @@ fun StartPlanning(
 
     // State to hold the budgetId
     var budgetId by remember { mutableStateOf<String?>(null) }
-
-    // Collect the main category list from the mainCategoryViewModel
-    val mainCategoryList by mainCategoryViewModel.mainCategoryList.collectAsState()
-
+    // Loading state
+    var isLoading by remember { mutableStateOf(true) }
     // State to hold the result of the fetch and save operation
     var isSavingComplete by remember { mutableStateOf(false) }
 
     // Fetch budgetId when month or year changes
     LaunchedEffect(month, year) {
+        isLoading = true
+
         budgetRepository.getBudgetId(userId, month, year) { fetchedBudgetId ->
             if (fetchedBudgetId != null) {
                 budgetId = fetchedBudgetId
@@ -49,18 +50,21 @@ fun StartPlanning(
                 // Save main categories only after fetching budgetId
                 mainCategoryViewModel.saveMainCategories(userId, budgetId!!) { success ->
                     isSavingComplete = success
+                    isLoading = false
                 }
             } else {
-                isSavingComplete = false
+                isLoading = false
             }
         }
     }
 
     // Show a message or HomeScreenContent based on the result
-    if (isSavingComplete && budgetId != null) {
+    if (isLoading) {
+        LoadingSpinner()
+    }else if (budgetId != null) {
         HomeScreenContent(mainCategoryViewModel, subCategoryViewModel)
     } else {
         // Show a loading state or an error message if saving fails
-        Text("Error or loading...")
+        Text("Failed to load budget. Please try again.")
     }
 }

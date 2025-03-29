@@ -48,16 +48,6 @@ fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCategoryV
     val sharedViewModel: SharedViewModel = viewModel()
     val userId = "v3Udk1WkxbV4YqoyNgLL"
 
-    // List of selectable budget categories (Planned, Spent, and Remaining)
-    val mainOptionList = listOf("Planned", "Spent", "Remaining")
-    // Declare mutable state for selected option(planned, spent or Remaining)
-    var selectedOption by remember { mutableStateOf("Planned") }
-
-    // Function to update the selected option(planned, spent or Remaining)
-    fun onOptionSelected(opt: String) {
-        selectedOption = opt
-    }
-
     // Collect the main category list from the mainCategoryViewModel
     val mainCategoryList by mainCategoryViewModel.mainCategoryList.collectAsState()
 
@@ -80,36 +70,7 @@ fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCategoryV
     //Combined list of main categories with their subcategories
     val mainCategoryWithSubcategories by mainCategoryViewModel.mainCategoryWithSubcategories.collectAsState()
 
-    // Content Row for main category options
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.Gray)
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(5.dp)
-    ) {
-        mainOptionList.forEach { option ->
-            val isSelected = option == selectedOption
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { selectedOption = option }
-                    .background(
-                        color = if (isSelected) Color.White else MaterialTheme.colorScheme.primary,
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    .padding(vertical = 8.dp)
-            ) {
-                Text(
-                    text = option,
-                    color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
+
 
     // Content of home screen
     Column(
