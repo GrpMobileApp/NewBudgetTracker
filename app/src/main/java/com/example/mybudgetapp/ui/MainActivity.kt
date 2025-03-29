@@ -24,25 +24,20 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mybudgetapp.ui.model.SignInState
 import com.example.mybudgetapp.ui.model.UserData
-import com.example.mybudgetapp.ui.screens.ChartScreen
 import com.example.mybudgetapp.ui.screens.GoogleAuthUiClient
 import com.example.mybudgetapp.ui.screens.HomeScreen
-import com.example.mybudgetapp.ui.screens.InfoScreen
 import com.example.mybudgetapp.ui.screens.SignInScreen
 import com.example.mybudgetapp.ui.screens.SignUpScreen
-import com.example.mybudgetapp.ui.screens.TransactionScreen
 
 import com.example.mybudgetapp.ui.theme.MyBudgetAppTheme
+import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
-
 import com.example.mybudgetapp.ui.viewModel.Signinviewmodel
-import com.example.mybudgetapp.ui.viewModel.SubCategoryViewModel
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
-import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : ComponentActivity() {
     var userData: UserData? = null
@@ -57,7 +52,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        FirebaseFirestore.setLoggingEnabled(true)
         enableEdgeToEdge()
         /*This is the correct one but still not implemented
         setContent {
@@ -77,7 +71,7 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     //create viewmodel instance
                     val dateAndMonthViewModel: DateAndMonthViewModel = viewModel()
-                    val subCategoryViewModel: SubCategoryViewModel = viewModel()
+                    val categoryViewModel: CategoryViewModel = viewModel()
                     val mainCategoryViewModel: MainCategoryViewModel = viewModel()
                     val expenseViewModel: ExpenseViewModel = viewModel()
                     val viewModel = viewModel<Signinviewmodel>()
@@ -162,35 +156,19 @@ Log.d("Main", "1")
                         composable(route = "home") {Log.d("Main", "3")
                             HomeScreen(navController,
                                 dateAndMonthViewModel,
-                                subCategoryViewModel,
+                                categoryViewModel,
                                 mainCategoryViewModel,
                                 expenseViewModel )
                         }
                         composable(route = "signup") {Log.d("Main", "3")
                             SignUpScreen(navController)
                         }
-                        composable(route = "outflow") {
-                            TransactionScreen(
-                                navController,
-                                dateAndMonthViewModel,
-                                expenseViewModel
-                            )
-                        }
-                        composable(route = "info") {
-                            InfoScreen(navController)
-                        }
-                        composable(route = "insights") {
-                            ChartScreen(
-                                navController,
-                                dateAndMonthViewModel,
-                                expenseViewModel
-                            )
-                        }
                     }
                 }
             }
         }
     }
+
     companion object {
         var AuthType: String =""
         var email: String = ""
