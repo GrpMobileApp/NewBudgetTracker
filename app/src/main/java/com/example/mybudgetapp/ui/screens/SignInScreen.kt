@@ -273,7 +273,9 @@ fun SignInScreen(
                 )
                 Text(
                     text = "Sign in with Google",
-                    modifier = Modifier.padding(start = 40.dp), // Adjust padding based on image size
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(start = 40.dp), // Adjust padding based on image size
                     fontSize = 16.sp,
                     color = Color.Black
                 )
