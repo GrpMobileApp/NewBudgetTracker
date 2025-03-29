@@ -72,9 +72,9 @@ fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCategoryV
         mutableStateOf<Map<String, List<SubCategoryItem>>>(emptyMap())
     }
     //call a function when screen appear
-    LaunchedEffect (userId, budgetId){
-        budgetId?.let {
-            mainCategoryViewModel.fetchMainCategoryWithSubcategories(userId,it)
+    LaunchedEffect(budgetId) {
+        if (budgetId != null) {
+            mainCategoryViewModel.fetchMainCategoryWithSubcategories(userId, budgetId!!)
         }
     }
     //Combined list of main categories with their subcategories

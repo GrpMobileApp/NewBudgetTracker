@@ -16,7 +16,6 @@ class MainCategoryViewModel: ViewModel() {
     // Repository instance to handle data operations
     private val repository = MainCategoryRepository()
     private val subCategoryRepository = SubCategoryRepository()
-    private  val budgetRepository = BudgetRepository()
 
 
     private val _mainCategoryWithSubcategories = MutableStateFlow<List<MainCategoryWithSubcategories>>(
@@ -32,24 +31,20 @@ class MainCategoryViewModel: ViewModel() {
     val mainCategoryList = _mainCategoryList
 
     // Function to get and save main categories
-    fun saveMainCategories(userId: String, month: String, year: String, onResult: (Boolean) -> Unit) {
-        // Fetch the budgetId
-        budgetRepository.getBudgetId(userId, month, year) { budgetId ->
-            // If the budgetId is valid, save categories
-            budgetId?.let { validBudgetId ->
-                mainCategoryList.value.forEach { category ->
-                    saveMainCategory(userId, validBudgetId, category) { success ->
-                        if (success) {
-                            Log.d("MainCategoryViewModel", "Category '$category' saved.")
-                        } else {
-                            Log.e("MainCategoryViewModel", "Failed to save category '$category'.")
-                        }
-                    }
+    fun saveMainCategories(userId: String, budgetId: String, onResult: (Boolean) -> Unit) {
+
+        mainCategoryList.value.forEach { category ->
+            saveMainCategory(userId, budgetId, category) { success ->
+                if (success) {
+                    Log.d("MainCategoryViewModel", "Category '$category' saved.")
+                } else {
+                    Log.e("MainCategoryViewModel", "Failed to save category '$category'.")
                 }
-                // Trigger the result callback after saving
-                onResult(true)
-            } ?: onResult(false)
+            }
         }
+        // Trigger the result callback after saving
+        onResult(true)
+
     }
 
     //Saves a new main category for the given user and budget.
@@ -70,6 +65,8 @@ class MainCategoryViewModel: ViewModel() {
         //Create a list to storethe combined data
         val mainCategoryWithSubcategoriesList = mutableListOf<MainCategoryWithSubcategories>()
 
+        var completedRequests = 0
+
         //Loop through main category and fetch it's sub categories
         categories.forEach { category ->
             subCategoryRepository.getSubCategory(userId,budgetId,category){ subCategoryItems ->
@@ -77,8 +74,13 @@ class MainCategoryViewModel: ViewModel() {
                 mainCategoryWithSubcategoriesList.add(
                     MainCategoryWithSubcategories(category, subCategoryItems)
                 )
+
                 //update the state with combined list
-                _mainCategoryWithSubcategories.value = mainCategoryWithSubcategoriesList
+                completedRequests++
+                if (completedRequests == categories.size) {
+                    _mainCategoryWithSubcategories.value = mainCategoryWithSubcategoriesList
+                }
+
             }
         }
 
