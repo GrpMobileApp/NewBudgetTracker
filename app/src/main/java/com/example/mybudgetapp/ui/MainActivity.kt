@@ -1,6 +1,8 @@
 package com.example.mybudgetapp.ui
 
+import SplashScreen
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -20,9 +22,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.mybudgetapp.ui.model.SignInState
+import com.example.mybudgetapp.ui.model.UserData
 import com.example.mybudgetapp.ui.screens.GoogleAuthUiClient
 import com.example.mybudgetapp.ui.screens.HomeScreen
 import com.example.mybudgetapp.ui.screens.SignInScreen
+import com.example.mybudgetapp.ui.screens.SignUpScreen
+
 import com.example.mybudgetapp.ui.theme.MyBudgetAppTheme
 import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
@@ -30,9 +36,11 @@ import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.Signinviewmodel
 import com.google.android.gms.auth.api.identity.Identity
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    var userData: UserData? = null
 
     //have to do initially in the main activity before create
     private val googleAuthUiClient by lazy {
@@ -66,21 +74,21 @@ class MainActivity : ComponentActivity() {
                     val categoryViewModel: CategoryViewModel = viewModel()
                     val mainCategoryViewModel: MainCategoryViewModel = viewModel()
                     val expenseViewModel: ExpenseViewModel = viewModel()
-
+                    val viewModel = viewModel<Signinviewmodel>()
+                    val state by viewModel.state.collectAsStateWithLifecycle()
+                    Log.d("Main1", "User Data: $userData")
                     NavHost(navController = navController,
-                        startDestination = "sign_in",
+                        startDestination = "splash",
                         modifier = Modifier.padding(innerPadding)) {
-                        lifecycleScope.launch {
-                            googleAuthUiClient.signOut() // Properly call the suspend function inside a coroutine
-                        }
+Log.d("Main", "1")
+                        composable("splash") { SplashScreen(navController) }
                         composable("sign_in") {
-                            val viewModel = viewModel<Signinviewmodel>()
-                            val state by viewModel.state.collectAsStateWithLifecycle()
-
+                            Log.d("Main", "2")
                             LaunchedEffect(key1 = Unit) {
+
                                 if(googleAuthUiClient.getSignedInUser() != null) {
-                                    val userData = googleAuthUiClient.getSignedInUser()
-                                    if (userData != null) {
+                                    userData = googleAuthUiClient.getSignedInUser()
+                                    if (state.isSignInSuccessful != false ) {
                                         navController.navigate("home")
                                     }
                                 }
@@ -101,13 +109,15 @@ class MainActivity : ComponentActivity() {
                             )
 
                             LaunchedEffect(key1 = state.isSignInSuccessful) {
+                                Log.d("Main", state.toString())
                                 if(state.isSignInSuccessful) {
                                     Toast.makeText(
                                         applicationContext,
                                         "Sign in successful",
                                         Toast.LENGTH_LONG
                                     ).show()
-
+                                    //userData = googleAuthUiClient.getSignedInUser()
+                                    Log.d("Main", userData.toString())
                                     navController.navigate("home")
                                     viewModel.resetState()
                                 }
@@ -115,28 +125,53 @@ class MainActivity : ComponentActivity() {
 
                             SignInScreen(
                                 state = state,
+                                navController,
                                 onSignInClick = {
+                                    Log.d("Main", "2,1")
                                     lifecycleScope.launch {
-                                        val signInIntentSender = googleAuthUiClient.signIn()
-                                        launcher.launch(
-                                            IntentSenderRequest.Builder(
-                                                signInIntentSender ?: return@launch
-                                            ).build()
-                                        )
+                                        if (AuthType == "GOOGLE") {
+                                            val signInIntentSender = googleAuthUiClient.signIn()
+                                            launcher.launch(
+                                                IntentSenderRequest.Builder(
+                                                    signInIntentSender ?: return@launch
+                                                ).build()
+                                            )
+                                        } else if (AuthType == "STANDARD") {
+                                            val auth = FirebaseAuth.getInstance()
+                                            auth.signInWithEmailAndPassword(email, password)
+                                                .addOnCompleteListener { task ->
+                                                    if (task.isSuccessful) {
+                                                        navController.navigate("home")
+                                                        viewModel.resetState()
+                                                        android.util.Log.d("SignInscreen", "Sign-in successful: ${task.result.user?.uid},  ${task.result.user?.email}, ${task.result.user?.photoUrl}")
+                                                    } else {
+                                                        android.util.Log.e("SignIn", "Sign-in failed: ${task.exception?.message}")
+                                                    }
+                                                }
+                                        }
                                     }
                                 }
                             )
                         }
-                        composable(route = "home") {
+                        composable(route = "home") {Log.d("Main", "3")
                             HomeScreen(navController,
                                 dateAndMonthViewModel,
                                 categoryViewModel,
                                 mainCategoryViewModel,
                                 expenseViewModel )
                         }
+                        composable(route = "signup") {Log.d("Main", "3")
+                            SignUpScreen(navController)
+                        }
                     }
                 }
             }
         }
+    }
+
+    companion object {
+        var AuthType: String =""
+        var email: String = ""
+        var password: String = ""
     }
 }
