@@ -26,8 +26,10 @@ import com.example.mybudgetapp.ui.model.SignInState
 import com.example.mybudgetapp.ui.model.UserData
 import com.example.mybudgetapp.ui.screens.GoogleAuthUiClient
 import com.example.mybudgetapp.ui.screens.HomeScreen
+import com.example.mybudgetapp.ui.screens.InfoScreen
 import com.example.mybudgetapp.ui.screens.SignInScreen
 import com.example.mybudgetapp.ui.screens.SignUpScreen
+import com.example.mybudgetapp.ui.screens.TransactionScreen
 
 import com.example.mybudgetapp.ui.theme.MyBudgetAppTheme
 import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
@@ -166,12 +168,21 @@ Log.d("Main", "1")
                         composable(route = "signup") {Log.d("Main", "3")
                             SignUpScreen(navController)
                         }
+                        composable(route = "outflow") {
+                            TransactionScreen(
+                                navController,
+                                dateAndMonthViewModel,
+                                expenseViewModel
+                            )
+                        }
+                        composable(route = "info") {
+                            InfoScreen(navController)
+                        }
                     }
                 }
             }
         }
     }
-
     companion object {
         var AuthType: String =""
         var email: String = ""
