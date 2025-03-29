@@ -239,15 +239,7 @@ fun SignInScreen(
         TextButton(onClick = { navController.navigate("signup") }) {
             Text(text = "Don't have an account? Signup")
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        // Divider******************************************************
-        Divider(
-            color = Color.Gray,
-            thickness = 2.dp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        )
+
         Spacer(modifier = Modifier.height(8.dp))
         // Google Sign-In Button with Image***************************
         OutlinedButton(
