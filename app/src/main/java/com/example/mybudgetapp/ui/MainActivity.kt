@@ -37,6 +37,7 @@ import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
 
 import com.example.mybudgetapp.ui.viewModel.Signinviewmodel
+import com.example.mybudgetapp.ui.viewModel.SubCategoryViewModel
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -75,7 +76,7 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     //create viewmodel instance
                     val dateAndMonthViewModel: DateAndMonthViewModel = viewModel()
-                    val categoryViewModel: CategoryViewModel = viewModel()
+                    val subCategoryViewModel: SubCategoryViewModel = viewModel()
                     val mainCategoryViewModel: MainCategoryViewModel = viewModel()
                     val expenseViewModel: ExpenseViewModel = viewModel()
                     val viewModel = viewModel<Signinviewmodel>()
@@ -160,7 +161,7 @@ Log.d("Main", "1")
                         composable(route = "home") {Log.d("Main", "3")
                             HomeScreen(navController,
                                 dateAndMonthViewModel,
-                                categoryViewModel,
+                                subCategoryViewModel,
                                 mainCategoryViewModel,
                                 expenseViewModel )
                         }

@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.R
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -34,7 +35,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.mybudgetapp.R
 import com.example.mybudgetapp.ui.appbars.BottomBar
 import com.example.mybudgetapp.ui.appbars.MainTopBar
 import com.example.mybudgetapp.ui.components.HomeScreenContent
@@ -152,7 +152,7 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Image(
-                            painter = painterResource(id = R.drawable.budget),
+                            painter = painterResource(id = com.example.mybudgetapp.ui.R.drawable.budget),
                             contentDescription = "budget"
                         )
 
