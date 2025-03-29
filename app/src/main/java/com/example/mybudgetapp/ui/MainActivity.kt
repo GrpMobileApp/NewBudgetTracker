@@ -32,7 +32,6 @@ import com.example.mybudgetapp.ui.screens.SignUpScreen
 import com.example.mybudgetapp.ui.screens.TransactionScreen
 
 import com.example.mybudgetapp.ui.theme.MyBudgetAppTheme
-import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
