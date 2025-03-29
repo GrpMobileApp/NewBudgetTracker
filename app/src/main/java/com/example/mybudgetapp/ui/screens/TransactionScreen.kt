@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -23,16 +24,31 @@ import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.TransactionViewModel
 
 @Composable
-fun TransactionScreen(navController: NavController,dateAndMonthViewModel: DateAndMonthViewModel, expenseViewModel: ExpenseViewModel, viewModel: TransactionViewModel = viewModel()) {
+fun TransactionScreen(
+    navController: NavController,
+    dateAndMonthViewModel: DateAndMonthViewModel,
+    expenseViewModel: ExpenseViewModel,
+    viewModel: TransactionViewModel = viewModel()
+) {
     var searchQuery by remember { mutableStateOf("") }
 
-    //filter transactions when the searchQuery changes
-    val filteredTransactions by remember(searchQuery) {
-        mutableStateOf(viewModel.getFilteredTransactions(searchQuery))
+    //observe transactions from the ViewModel
+    val transactions by viewModel.transactions.observeAsState(emptyList())
+
+    //filter transactions based on search query using the ViewModel method
+    val filteredTransactions by remember(searchQuery, transactions) {
+        derivedStateOf {
+            transactions.filter { it.subCategoryName.contains(searchQuery, ignoreCase = true) }
+        }
     }
-//for common structure of  transaction screen and it include top bar and buttom bar
+
+    //load transactions from firestore when the screen is created
+    LaunchedEffect(Unit) {
+        viewModel.loadTransactions()
+    }
+
     Scaffold(
-        topBar = { MainTopBar(navController, dateAndMonthViewModel, expenseViewModel ) },
+        topBar = { MainTopBar(navController, dateAndMonthViewModel, expenseViewModel) },
         bottomBar = { BottomBar(navController) }
     ) { innerPadding ->
         Column(
@@ -41,7 +57,7 @@ fun TransactionScreen(navController: NavController,dateAndMonthViewModel: DateAn
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            // selected month and year from ViewModel
+            //selected month and year from ViewModel
             val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
             val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
 
@@ -54,23 +70,54 @@ fun TransactionScreen(navController: NavController,dateAndMonthViewModel: DateAn
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            //display transactions
+            //display filtered transactions
             LazyColumn {
                 items(filteredTransactions) { transaction ->
-                    TransactionItem(transaction)
+                    TransactionItem(transaction, viewModel)
                 }
             }
         }
     }
 }
 
-//to display each individual transaction in the list
+
 @Composable
-fun TransactionItem(transaction: Transaction) {
+fun TransactionItem(transaction: Transaction, viewModel: TransactionViewModel) {
+    //state variable to control the visibility of the delete confirmation dialog
+    var showDialog by remember { mutableStateOf(false) }
+
+    //determine the background color based on the transaction type
     val backgroundColor =
-        if (transaction.type == TransactionType.INCOME) Color(0xFFD0F0C0) else Color(0xFFFFD6D6)
-    val textColor = if (transaction.type == TransactionType.INCOME) Color(0xFF006400) else Color.Red
-//display each transaction in a material-styled container with padding
+        if (transaction.getTransactionType() == TransactionType.INCOME) Color(0xFFD0F0C0) else Color(0xFFFFD6D6)
+    //determine the text color based on the transaction type
+    val textColor = if (transaction.getTransactionType() == TransactionType.INCOME) Color(0xFF006400) else Color.Red
+
+    //display an alert dialog when the user attempts to delete a transaction
+    if (showDialog) {
+        AlertDialog(
+            //close dialog when dismissed
+            onDismissRequest = { showDialog = false },
+            title = { Text("Delete Transaction") },
+            text = { Text("Are you sure you want to delete this transaction?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    //call ViewModel to delete transaction
+                    viewModel.deleteTransaction(transaction)
+                    //close the dialog after deletion
+                    showDialog = false
+                }) {
+                    Text("Delete", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    //close dialog without deleting
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+    //card layout to display the transaction details
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -81,22 +128,20 @@ fun TransactionItem(transaction: Transaction) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween // Align items to opposite ends
-        )
-        {
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            //column for transaction details subcategory name and amount
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = transaction.name, style = MaterialTheme.typography.bodyLarge)
+                Text(text = transaction.subCategoryName, style = MaterialTheme.typography.bodyLarge)
                 Text(
-                    text = "€${transaction.amount}",
+                    //convert amount safely to double
+                    text = "€${transaction.getAmountAsDouble()}",
                     fontWeight = FontWeight.Bold,
                     color = textColor
                 )
             }
-            //row to place the icons together
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                //Edit icon for each list
+            //row for edit and delete buttons
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 IconButton(onClick = { }) {
                     Icon(
                         imageVector = Icons.Default.Edit,
@@ -104,8 +149,8 @@ fun TransactionItem(transaction: Transaction) {
                         tint = Color.Gray
                     )
                 }
-                //Delete icon for each list
-                IconButton(onClick = { }) {
+
+                IconButton(onClick = { showDialog = true }) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Delete Transaction",
