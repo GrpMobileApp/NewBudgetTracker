@@ -22,6 +22,7 @@ import com.example.mybudgetapp.ui.model.TransactionType
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.TransactionViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun TransactionScreen(
@@ -32,19 +33,22 @@ fun TransactionScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
-    //observe transactions from the ViewModel
+    //get logged-in user ID
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+    //observe transactions from ViewModel
     val transactions by viewModel.transactions.observeAsState(emptyList())
 
-    //filter transactions based on search query using the ViewModel method
+    //filter transactions based on search query
     val filteredTransactions by remember(searchQuery, transactions) {
         derivedStateOf {
             transactions.filter { it.subCategoryName.contains(searchQuery, ignoreCase = true) }
         }
     }
 
-    //load transactions from firestore when the screen is created
-    LaunchedEffect(Unit) {
-        viewModel.loadTransactions()
+    //load transactions for the logged-in user
+    LaunchedEffect(userId) {
+        userId?.let { viewModel.loadTransactions(it) }
     }
 
     Scaffold(
@@ -57,11 +61,7 @@ fun TransactionScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            //selected month and year from ViewModel
-            val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
-            val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
-
-            //search bar
+            //search Bar
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
@@ -80,12 +80,10 @@ fun TransactionScreen(
     }
 }
 
-
 @Composable
 fun TransactionItem(transaction: Transaction, viewModel: TransactionViewModel) {
     //state variable to control the visibility of the delete confirmation dialog
     var showDialog by remember { mutableStateOf(false) }
-
     //determine the background color based on the transaction type
     val backgroundColor =
         if (transaction.getTransactionType() == TransactionType.INCOME) Color(0xFFD0F0C0) else Color(0xFFFFD6D6)
@@ -117,7 +115,7 @@ fun TransactionItem(transaction: Transaction, viewModel: TransactionViewModel) {
             }
         )
     }
-    //card layout to display the transaction details
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,7 +128,6 @@ fun TransactionItem(transaction: Transaction, viewModel: TransactionViewModel) {
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            //column for transaction details subcategory name and amount
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(text = transaction.subCategoryName, style = MaterialTheme.typography.bodyLarge)
                 Text(
