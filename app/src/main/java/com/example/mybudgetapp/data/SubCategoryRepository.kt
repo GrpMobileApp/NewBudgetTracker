@@ -7,27 +7,30 @@ import com.google.firebase.firestore.FirebaseFirestore
 class SubCategoryRepository {
     private val db = FirebaseFirestore.getInstance()
     // Function to get sub category details
-    fun getSubCategory(userId: String, budgetId: String, mainCatId: String, onResult: (List<SubCategoryItem>) -> Unit) {
-        db.collection("Users")
-            .document(userId)
-            .collection("monthly_budgets")
-            .document(budgetId)
-            .collection("main_categories")
-            .document(mainCatId)
-            .collection("sub_categories")
+    fun getSubCategory(userId: String, budgetId: String, mainCatName: String, onResult: (List<SubCategoryItem>) -> Unit) {
+        db.collection("sub_categories")
+            .whereEqualTo("userId", userId)
+            .whereEqualTo("budgetId", budgetId)
+            .whereEqualTo("mainCategoryName", mainCatName)
             .get()
             .addOnSuccessListener { documents ->
                 val subCategories = mutableListOf<SubCategoryItem>()
 
                 for (document in documents) { // Iterate through each document
-                    val name = document.getString("name")
-                    val plannedAmount = document.getDouble("planned_amount") ?: 0.0
-                    val totalSpend = document.getDouble("total_spend") ?: 0.0
+                    val budgetID = document.getString("budgetId")?: ""
+                    val mainCategoryName = document.getString("mainCategoryName")?: ""
+                    val plannedAmount = document.getDouble("plannedAmount")?: 0.0
+                    val remainingAmount = document.getDouble("remainingAmount")?: 0.0
+                    val subCategoryName = document.getString("subCategoryName")?: ""
+                    val totalSpend = document.getDouble("totalSpend") ?: 0.0
+                    val userID = document.getString("userId") ?: ""
 
-                    if (name != null) {
-                        subCategories.add(SubCategoryItem(name, plannedAmount, totalSpend))
+                    if (subCategoryName.isNotEmpty()) {
+                        subCategories.add(SubCategoryItem(budgetID, mainCategoryName,plannedAmount,remainingAmount, subCategoryName, totalSpend, userID))
                     }
                 }
+                // Log the fetched subcategories
+                Log.d("SubCategoryRepository", "Fetched subcategories: $subCategories \n$budgetId\n$mainCatName")
                 onResult(subCategories) // Return the list
             }
             .addOnFailureListener {exception ->

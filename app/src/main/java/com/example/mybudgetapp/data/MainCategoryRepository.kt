@@ -34,8 +34,10 @@ class MainCategoryRepository {
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
                     val categoryDoc = documents.first()
+                    Log.d("MainCategoryRepo", "Found MainCategoryId: ${categoryDoc.id}")
                     onResult(categoryDoc.id)  // Return the budget ID
                 } else {
+                    Log.d("MainCategoryRepo", "No category found")
                     onResult(null) // No matching budget found
                 }
             }
