@@ -3,6 +3,7 @@ package com.example.mybudgetapp.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -12,6 +13,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -84,6 +86,9 @@ fun TransactionScreen(
 fun TransactionItem(transaction: Transaction, viewModel: TransactionViewModel) {
     //state variable to control the visibility of the delete confirmation dialog
     var showDialog by remember { mutableStateOf(false) }
+    //for edit
+    var showEditDialog by remember { mutableStateOf(false) }
+
     //determine the background color based on the transaction type
     val backgroundColor =
         if (transaction.getTransactionType() == TransactionType.INCOME) Color(0xFFD0F0C0) else Color(0xFFFFD6D6)
@@ -116,6 +121,18 @@ fun TransactionItem(transaction: Transaction, viewModel: TransactionViewModel) {
         )
     }
 
+    //for edit dialog
+    if (showEditDialog) {
+        EditTransactionDialog(
+            transaction = transaction,
+            onDismiss = { showEditDialog = false },
+            onSave = { updatedTransaction ->
+                viewModel.updateTransaction(updatedTransaction)
+                showEditDialog = false
+            }
+        )
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -139,7 +156,7 @@ fun TransactionItem(transaction: Transaction, viewModel: TransactionViewModel) {
             }
             //row for edit and delete buttons
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                IconButton(onClick = { }) {
+                IconButton(onClick = { showEditDialog = true }) {
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Edit Transaction",
@@ -157,4 +174,78 @@ fun TransactionItem(transaction: Transaction, viewModel: TransactionViewModel) {
             }
         }
     }
+}
+
+//for edit transaction
+@Composable
+fun EditTransactionDialog(
+    transaction: Transaction,
+    onDismiss: () -> Unit,
+    onSave: (Transaction) -> Unit
+) {
+    //state variables to hold the input values
+    var categoryName by remember { mutableStateOf(transaction.categoryName) }
+    var description by remember { mutableStateOf(transaction.description) }
+    var amount by remember { mutableStateOf(transaction.getAmountAsDouble().toString()) }
+    var subCategoryName by remember { mutableStateOf(transaction.subCategoryName) }
+
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = { Text("Edit Transaction") },
+        text = {
+            Column {
+                //input for category name
+                OutlinedTextField(
+                    value = categoryName,
+                    onValueChange = { categoryName = it },
+                    label = { Text("Category Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                //input for description
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Description") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                //input for amount
+                OutlinedTextField(
+                    value = amount,
+                    onValueChange = { amount = it },
+                    label = { Text("Amount") },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                //input for subcategory name
+                OutlinedTextField(
+                    value = subCategoryName,
+                    onValueChange = { subCategoryName = it },
+                    label = { Text("Subcategory Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                val updatedTransaction = transaction.copy(
+                    categoryName = categoryName,
+                    description = description,
+                    amount = amount.toDoubleOrNull() ?: transaction.amount
+                )
+                onSave(updatedTransaction)
+            }) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismiss() }) {
+                Text("Cancel")
+            }
+        }
+    )
 }
