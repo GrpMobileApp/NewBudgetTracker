@@ -38,4 +38,30 @@ class SubCategoryRepository {
                 onResult(emptyList())
             }
     }
+
+
+    // Function to save MainCategory to a specific user's budget
+    fun saveSubCategory(subCategoryItem: SubCategoryItem, onResult: (Boolean) -> Unit) {
+        val subCategory = hashMapOf(
+            "budgetId" to subCategoryItem.budgetId,
+            "mainCategoryName" to subCategoryItem.mainCategoryName,
+            "plannedAmount" to subCategoryItem.plannedAmount,
+            "remainingAmount" to subCategoryItem.remainingAmount,
+            "subCategoryName" to subCategoryItem.subCategoryName,
+            "totalSpend" to subCategoryItem.totalSpend,
+            "userId" to subCategoryItem.userId
+        )
+
+        // Navigating to the right path
+        db.collection("sub_categories")
+            .add(subCategory) // Add the main category
+            .addOnSuccessListener {
+                Log.d("Firestore", "SubCategory added successfully ${subCategoryItem.subCategoryName}")
+                onResult(true)  // Callback on success
+            }
+            .addOnFailureListener {
+                e -> Log.e("FirestoreError", "Error adding subCategory: ${e.message}")
+                onResult(false)  // Callback on error
+            }
+    }
 }

@@ -16,15 +16,28 @@ class SubCategoryViewModel: ViewModel() {
 
     val categoryList: StateFlow<List<SubCategoryItem>> = _subCategoryList.asStateFlow()
 
-/*    // Function to add a new category item
-    fun addCategoryItem(name: String, plannedAmount: Double, totalSpend: Double){
-        if (name.isNotBlank()) {
-            val newItem = SubCategoryItem(name, plannedAmount, totalSpend)
-            _subCategoryList.value += newItem
+    // Function to add a new category item
+    fun addCategoryItem(
+        budgetId: String,
+        mainCategoryName: String,
+        plannedAmount: Double,
+        subCategoryName: String,
+        totalSpend: Double,
+        userId: String,
+        onSuccess: () -> Unit
+    ) {
+        if (subCategoryName.isNotBlank()) {
+            val newItem = SubCategoryItem(
+                budgetId, mainCategoryName, plannedAmount, plannedAmount - totalSpend, subCategoryName, totalSpend, userId
+            )
+            repository.saveSubCategory(newItem){ success ->
+                if (success) {
+                    onSuccess() //refresh only when Firestore confirms success
+                }
+            }
         }
     }
 
- */
 
 
 

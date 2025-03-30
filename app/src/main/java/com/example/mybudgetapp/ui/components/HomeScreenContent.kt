@@ -52,7 +52,8 @@ fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCategoryV
     val mainCategoryList by mainCategoryViewModel.mainCategoryList.collectAsState()
 
     // State to control the visibility of the Add Category dialog(Controls popup visibility)
-    var showDialog by remember { mutableStateOf(false) }
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
+
 
     // State to hold the budgetId
     val budgetId by sharedViewModel.budgetId.collectAsState()
@@ -112,24 +113,34 @@ fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCategoryV
                     // "Add Item" button
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    Button(onClick = { showDialog = true }) {
+                    Button(onClick = { selectedCategory = category.mainCategoryName }) {
                         Text("Add Category")
                     }
                 }
             }
+
         }
     }
-/*
-    // Show dialog when user clicks "Add Category"
-    if (showDialog) {
+    // Move Dialog OUTSIDE the loop
+    if (selectedCategory != null) {
         AddCategoryDialog(
-            onDismiss = { showDialog = false },
+            onDismiss = { selectedCategory = null }, // Reset on close
             onSubmit = { name, plannedAmount ->
-                subCategoryViewModel.addCategoryItem(name, plannedAmount)
-                showDialog = false
-            }
+                subCategoryViewModel.addCategoryItem(
+                    budgetId!!,
+                    selectedCategory!!, // Use selectedCategory
+                    plannedAmount.toDouble(),
+                    name,
+                    totalSpend = 0.0,
+                    userId
+                ){
+                    selectedCategory = null  // Reset after submission
+                    // Refresh main category list after adding a new subcategory
+                    mainCategoryViewModel.fetchMainCategoryWithSubcategories(userId, budgetId!!)
+                }
+            },
+            mainCategoryName = selectedCategory!! // Pass correct category name
         )
     }
-
- */
 }
+
