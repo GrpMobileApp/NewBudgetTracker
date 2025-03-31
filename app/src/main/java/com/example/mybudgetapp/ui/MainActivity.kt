@@ -1,6 +1,7 @@
 package com.example.mybudgetapp.ui
 
 import SplashScreen
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -8,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +26,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mybudgetapp.ui.model.SignInState
 import com.example.mybudgetapp.ui.model.UserData
+import com.example.mybudgetapp.ui.screens.FacebookAuthUiClient
 import com.example.mybudgetapp.ui.screens.GoogleAuthUiClient
 import com.example.mybudgetapp.ui.screens.HomeScreen
 import com.example.mybudgetapp.ui.screens.SignInScreen
@@ -35,12 +38,18 @@ import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.Signinviewmodel
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.FacebookSdk
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     var userData: UserData? = null
+    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
+    private lateinit var FacebookAuthUiClient: FacebookAuthUiClient
 
     //have to do initially in the main activity before create
     private val googleAuthUiClient by lazy {
@@ -53,6 +62,23 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        //this is for facebook part testing
+        //initialize facebook SDK
+        FacebookSdk.sdkInitialize(this)
+        FacebookAuthUiClient = FacebookAuthUiClient(this)
+
+        // Use the new API instead of onActivityResult
+        activityResultLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            FacebookAuthUiClient.getCallbackManager().onActivityResult(
+                result.resultCode,
+                result.resultCode,
+                result.data
+            )
+            Log.d("MainFB1", "result.resultCode : ${result.resultCode}, result.data : ${result.data}, FacebookAuthUiClient.getCallbackManager() : ${FacebookAuthUiClient.getCallbackManager()}")
+        }
+
         /*This is the correct one but still not implemented
         setContent {
             MyBudgetAppTheme {
@@ -80,10 +106,10 @@ class MainActivity : ComponentActivity() {
                     NavHost(navController = navController,
                         startDestination = "splash",
                         modifier = Modifier.padding(innerPadding)) {
-Log.d("Main", "1")
+
                         composable("splash") { SplashScreen(navController) }
                         composable("sign_in") {
-                            Log.d("Main", "2")
+
                             LaunchedEffect(key1 = Unit) {
 
                                 if(googleAuthUiClient.getSignedInUser() != null) {
@@ -117,7 +143,7 @@ Log.d("Main", "1")
                                         Toast.LENGTH_LONG
                                     ).show()
                                     //userData = googleAuthUiClient.getSignedInUser()
-                                    Log.d("Main", userData.toString())
+
                                     navController.navigate("home")
                                     viewModel.resetState()
                                 }
@@ -127,7 +153,7 @@ Log.d("Main", "1")
                                 state = state,
                                 navController,
                                 onSignInClick = {
-                                    Log.d("Main", "2,1")
+
                                     lifecycleScope.launch {
                                         if (AuthType == "GOOGLE") {
                                             val signInIntentSender = googleAuthUiClient.signIn()
@@ -145,9 +171,25 @@ Log.d("Main", "1")
                                                         viewModel.resetState()
                                                         android.util.Log.d("SignInscreen", "Sign-in successful: ${task.result.user?.uid},  ${task.result.user?.email}, ${task.result.user?.photoUrl}")
                                                     } else {
-                                                        android.util.Log.e("SignIn", "Sign-in failed: ${task.exception?.message}")
+                                                        Toast.makeText(
+                                                            applicationContext,
+                                                            "Sign in Fail,Please check the credentials and try again",
+                                                            Toast.LENGTH_LONG
+                                                        ).show()
                                                     }
                                                 }
+                                        } else if(AuthType == "FACEBOOK"){
+                                            //write facebook code here
+                                            FacebookAuthUiClient.login(
+                                                onSuccess = { user ->
+                                                    Log.d("MainFB2", "User authenticated: ${user?.email}")
+                                                    navController.navigate("home")
+                                                    viewModel.resetState()
+                                                },
+                                                onError = { error ->
+                                                    Log.e("MainFB3", "Login failed: ${error.message}")
+                                                }
+                                            )
                                         }
                                     }
                                 }
@@ -168,7 +210,11 @@ Log.d("Main", "1")
             }
         }
     }
-
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        FacebookAuthUiClient.getCallbackManager().onActivityResult(requestCode, resultCode, data)
+    }
     companion object {
         var AuthType: String =""
         var email: String = ""
