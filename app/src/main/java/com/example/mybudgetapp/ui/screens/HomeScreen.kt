@@ -39,6 +39,7 @@ import com.example.mybudgetapp.ui.R
 import com.example.mybudgetapp.ui.appbars.BottomBar
 import com.example.mybudgetapp.ui.appbars.MainTopBar
 import com.example.mybudgetapp.ui.components.HomeScreenContent
+import com.example.mybudgetapp.ui.components.LoadingSpinner
 import com.example.mybudgetapp.ui.components.StartPlanning
 import com.example.mybudgetapp.ui.viewModel.BudgetViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
@@ -77,6 +78,9 @@ fun HomeScreen(
         selectedOption = opt
     }
 
+    // Add a loading state
+    var isLoading by remember { mutableStateOf(true) }
+
     Scaffold (
         // Top bar receives a function to update the selected month and year
         topBar = { MainTopBar(navController, dateAndMonthViewModel, expenseViewModel) },
@@ -97,6 +101,7 @@ fun HomeScreen(
             LaunchedEffect(selectedMonth.toString(), selectedYear.toString()) {
                 budgetViewModel.getBudgetId(userId, selectedMonth, selectedYear) { id ->
                     sharedViewModel.setBudgetId(id)
+                    isLoading = false
                 }
                 isPlanningStarted = false
             }
@@ -131,61 +136,65 @@ fun HomeScreen(
                     }
                 }
             }
-            // Handle UI based on budgetId
-            if (budgetId != null || isPlanningStarted){
-                HomeScreenContent(mainCategoryViewModel, subCategoryViewModel)
-            } else {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 25.dp, start = 10.dp, end = 10.dp),
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 10.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+            if (isLoading){
+                LoadingSpinner()
+            }else {
+                // Handle UI based on budgetId
+                if (budgetId != null || isPlanningStarted){
+                    HomeScreenContent(mainCategoryViewModel, subCategoryViewModel)
+                } else {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 25.dp, start = 10.dp, end = 10.dp),
+                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 10.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
-                        Text(
-                            text = "Let's plan your month",
-                            fontSize = 20.sp
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Image(
-                            painter = painterResource(id = R.drawable.budget),
-                            contentDescription = "budget"
-                        )
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Text(
-                            text = "Select the relavant month in topbar",
-                            fontSize = 20.sp
-                        )
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Button(onClick = {
-                            // Save budget on button click
-                            budgetViewModel.saveBudget(userId, selectedMonth, selectedYear) { success ->
-                                Toast.makeText(
-                                    context,
-                                    if (success) "Budget saved successfully!" else "Failed to save budget!",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-
-                                // Trigger the display of the StartPlanning composable
-                                isPlanningStarted = true
-                            }
-                        }
+                        Column(
+                            modifier = Modifier.padding(10.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "Start planning",
+                                text = "Let's plan your month",
                                 fontSize = 20.sp
                             )
-                        }
+                            Spacer(modifier = Modifier.height(16.dp))
 
+                            Image(
+                                painter = painterResource(id = R.drawable.budget),
+                                contentDescription = "budget"
+                            )
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Text(
+                                text = "Select the relavant month in topbar",
+                                fontSize = 20.sp
+                            )
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Button(onClick = {
+                                // Save budget on button click
+                                budgetViewModel.saveBudget(userId, selectedMonth, selectedYear) { success ->
+                                    Toast.makeText(
+                                        context,
+                                        if (success) "Budget saved successfully!" else "Failed to save budget!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                    // Trigger the display of the StartPlanning composable
+                                    isPlanningStarted = true
+                                }
+                            }
+                            ) {
+                                Text(
+                                    text = "Start planning",
+                                    fontSize = 20.sp
+                                )
+                            }
+
+                        }
                     }
                 }
             }
