@@ -27,17 +27,19 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
 import com.example.mybudgetapp.ui.model.SubCategoryItem
+import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.SharedViewModel
 
 
 @Composable
 fun AddExpenseDialog(
     onDismiss: () -> Unit,
-    onSubmit: (String, String, String, Float) -> Unit,
+    expenseViewModel: ExpenseViewModel,
     mainCategoryViewModel: MainCategoryViewModel
 ){
     var category by remember { mutableStateOf("") }
     var subCategory by remember { mutableStateOf("") }
+    var subCategoryId by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     val sharedViewModel: SharedViewModel = viewModel()
@@ -94,7 +96,10 @@ fun AddExpenseDialog(
                     label = "Select Subcategory"
                 ) { selectedSubCategory ->
                     subCategory = selectedSubCategory
-                    Log.d("AddExpenseDialog", "Subcategory selected: '$subCategory'")
+
+                    // Find the selected subcategory item to get its ID
+                    val selectedSubCategoryItem = subCategoriesOfSelectedMain.find { it.subCategoryName == selectedSubCategory }
+                    subCategoryId = selectedSubCategoryItem?.subCategoryId ?: ""
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -124,9 +129,18 @@ fun AddExpenseDialog(
                     Button(
                         onClick = {
                             val amountValue = amount.toFloatOrNull() ?: 0f
-                            if (category.isNotBlank() && subCategory.isNotBlank() && amountValue > 0) {
-                                onSubmit(category, subCategory, note, amountValue)
-                                onDismiss()
+                            if (budgetId != null && !subCategoryId.isNullOrBlank() && category.isNotBlank() && subCategory.isNotBlank() && amountValue > 0) {
+                                expenseViewModel.storeExpense(
+                                    userId = userId,
+                                    budgetId = budgetId !!,
+                                    categoryName = category,
+                                    subCategoryId = subCategoryId,
+                                    subCategoryName = subCategory,
+                                    description = note,
+                                    amount = amountValue.toDouble(),
+                                    date = java.sql.Timestamp(System.currentTimeMillis()),
+                                    onResult = { success -> if (success) onDismiss() }
+                                )
                             }
                         }
                     ) {

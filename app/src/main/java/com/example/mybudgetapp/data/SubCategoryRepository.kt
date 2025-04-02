@@ -24,9 +24,10 @@ class SubCategoryRepository {
                     val subCategoryName = document.getString("subCategoryName")?: ""
                     val totalSpend = document.getDouble("totalSpend") ?: 0.0
                     val userID = document.getString("userId") ?: ""
+                    val subCategoryId = document.id
 
                     if (subCategoryName.isNotEmpty()) {
-                        subCategories.add(SubCategoryItem(budgetID, mainCategoryName,plannedAmount,remainingAmount, subCategoryName, totalSpend, userID))
+                        subCategories.add(SubCategoryItem(budgetID, mainCategoryName,plannedAmount,remainingAmount, subCategoryName, totalSpend, userID, subCategoryId))
                     }
                 }
                 // Log the fetched subcategories
@@ -41,22 +42,22 @@ class SubCategoryRepository {
 
 
     // Function to save MainCategory to a specific user's budget
-    fun saveSubCategory(subCategoryItem: SubCategoryItem, onResult: (Boolean) -> Unit) {
+    fun saveSubCategory(budgetId:String, mainCategoryName:String, plannedAmount:Double, remainingAmount:Double, subCategoryName:String, totalSpend:Double, userId:String, onResult: (Boolean) -> Unit) {
         val subCategory = hashMapOf(
-            "budgetId" to subCategoryItem.budgetId,
-            "mainCategoryName" to subCategoryItem.mainCategoryName,
-            "plannedAmount" to subCategoryItem.plannedAmount,
-            "remainingAmount" to subCategoryItem.remainingAmount,
-            "subCategoryName" to subCategoryItem.subCategoryName,
-            "totalSpend" to subCategoryItem.totalSpend,
-            "userId" to subCategoryItem.userId
+            "budgetId" to budgetId,
+            "mainCategoryName" to mainCategoryName,
+            "plannedAmount" to plannedAmount,
+            "remainingAmount" to remainingAmount,
+            "subCategoryName" to subCategoryName,
+            "totalSpend" to totalSpend,
+            "userId" to userId
         )
 
         // Navigating to the right path
         db.collection("sub_categories")
             .add(subCategory) // Add the main category
             .addOnSuccessListener {
-                Log.d("Firestore", "SubCategory added successfully ${subCategoryItem.subCategoryName}")
+                Log.d("Firestore", "SubCategory added successfully $subCategoryName")
                 onResult(true)  // Callback on success
             }
             .addOnFailureListener {

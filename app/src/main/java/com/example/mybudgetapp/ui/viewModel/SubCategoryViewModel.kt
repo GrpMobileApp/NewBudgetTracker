@@ -27,10 +27,7 @@ class SubCategoryViewModel: ViewModel() {
         onSuccess: () -> Unit
     ) {
         if (subCategoryName.isNotBlank()) {
-            val newItem = SubCategoryItem(
-                budgetId, mainCategoryName, plannedAmount, plannedAmount - totalSpend, subCategoryName, totalSpend, userId
-            )
-            repository.saveSubCategory(newItem){ success ->
+            repository.saveSubCategory(budgetId, mainCategoryName, plannedAmount, plannedAmount - totalSpend, subCategoryName, totalSpend, userId){ success ->
                 if (success) {
                     onSuccess() //refresh only when Firestore confirms success
                 }

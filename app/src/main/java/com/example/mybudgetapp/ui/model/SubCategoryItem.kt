@@ -8,5 +8,6 @@ data class SubCategoryItem(
     val remainingAmount:Double,
     val subCategoryName: String,
     val totalSpend: Double,
-    val userId: String
+    val userId: String,
+    val subCategoryId:String
 )

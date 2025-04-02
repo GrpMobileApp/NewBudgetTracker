@@ -175,10 +175,7 @@ fun MainTopBar(navController: NavController, dateAndMonthViewModel: DateAndMonth
     if(showExpenseAddDialog){
         AddExpenseDialog (
             onDismiss = {showExpenseAddDialog = false},
-            onSubmit = {category, subCategory, note, amount->
-                expenseViewModel.addExpenseItem(category, subCategory, note,amount)
-                showExpenseAddDialog = false
-            },
+            expenseViewModel = expenseViewModel,
             mainCategoryViewModel = mainCategoryViewModel
         )
     }
