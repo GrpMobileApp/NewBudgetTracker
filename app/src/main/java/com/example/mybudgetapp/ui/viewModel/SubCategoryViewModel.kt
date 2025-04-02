@@ -48,4 +48,8 @@ class SubCategoryViewModel: ViewModel() {
     fun setSubCategoryList(subCategoryItem: List<SubCategoryItem>){
         _subCategoryList.value = subCategoryItem
     }
+
+    fun updateTotalSpendAndRemaining(subCategoryId: String, totalSpend:Double, remaining:Double, onResult: (Boolean) -> Unit){
+        repository.updateTotalSpendAndRemaining(subCategoryId,totalSpend, remaining, onResult)
+    }
 }

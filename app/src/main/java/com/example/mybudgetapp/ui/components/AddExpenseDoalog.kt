@@ -29,6 +29,7 @@ import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
 import com.example.mybudgetapp.ui.model.SubCategoryItem
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.SharedViewModel
+import com.example.mybudgetapp.ui.viewModel.SubCategoryViewModel
 
 
 @Composable
@@ -40,9 +41,13 @@ fun AddExpenseDialog(
     var category by remember { mutableStateOf("") }
     var subCategory by remember { mutableStateOf("") }
     var subCategoryId by remember { mutableStateOf("") }
+    var totalSpend by remember { mutableStateOf(0.0) }
+    var remainingAmount by remember { mutableStateOf(0.0) }
+    var plannedAmount by remember { mutableStateOf(0.0) }
     var note by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     val sharedViewModel: SharedViewModel = viewModel()
+    val subCategoryViewModel: SubCategoryViewModel = viewModel()
 
     // State to hold the budgetId
     val budgetId by sharedViewModel.budgetId.collectAsState()
@@ -100,6 +105,9 @@ fun AddExpenseDialog(
                     // Find the selected subcategory item to get its ID
                     val selectedSubCategoryItem = subCategoriesOfSelectedMain.find { it.subCategoryName == selectedSubCategory }
                     subCategoryId = selectedSubCategoryItem?.subCategoryId ?: ""
+                    totalSpend = selectedSubCategoryItem?.totalSpend ?: 0.00
+                    remainingAmount = selectedSubCategoryItem?.remainingAmount ?: 0.00
+                    plannedAmount = selectedSubCategoryItem?.plannedAmount ?: 0.00
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -141,6 +149,21 @@ fun AddExpenseDialog(
                                     date = java.sql.Timestamp(System.currentTimeMillis()),
                                     onResult = { success -> if (success) onDismiss() }
                                 )
+                                subCategoryViewModel.updateTotalSpendAndRemaining(
+                                    subCategoryId = subCategoryId,
+                                    totalSpend = totalSpend + amountValue,
+                                    remaining = remainingAmount - amountValue,
+                                ) { success ->
+                                    if (success) {
+                                        Log.d(
+                                            "AddExpenseDialog", "Successfully updated totalSpend and remainingAmount"
+                                        )
+                                    } else {
+                                        Log.e(
+                                            "AddExpenseDialog", "Failed to update totalSpend and remainingAmount"
+                                        )
+                                    }
+                                }
                             }
                         }
                     ) {
