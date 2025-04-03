@@ -1,3 +1,4 @@
+import android.util.Log
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -15,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import androidx.navigation.NavController
 import com.example.mybudgetapp.ui.R
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun SplashScreen(navController: NavController) {
@@ -38,13 +40,22 @@ fun SplashScreen(navController: NavController) {
         }
     }
 
+    // Navigate based on authentication status
     LaunchedEffect(Unit) {
-        delay(3000L) // 3 seconds before navigating
-        navController.navigate("sign_in") {
-            popUpTo("splash") { inclusive = true } // Remove splash from backstack
+        delay(3000L) // Wait for animation
+
+        val auth = FirebaseAuth.getInstance()
+        if (auth.currentUser != null) {Log.d("Splash", "User is logged in")
+            navController.navigate("home") {
+                popUpTo("sign_in") { inclusive = true }
+            }
+        } else {
+            Log.d("Splash", "User is not logged in")
+            navController.navigate("sign_in") {
+                popUpTo("splash") { inclusive = true }
+            }
         }
     }
-
     // UI for Splash Screen
     Box(
         modifier = Modifier

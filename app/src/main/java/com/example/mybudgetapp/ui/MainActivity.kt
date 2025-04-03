@@ -12,6 +12,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -24,14 +25,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.mybudgetapp.ui.model.SignInResult
 import com.example.mybudgetapp.ui.model.SignInState
 import com.example.mybudgetapp.ui.model.UserData
 import com.example.mybudgetapp.ui.screens.FacebookAuthUiClient
 import com.example.mybudgetapp.ui.screens.GoogleAuthUiClient
 import com.example.mybudgetapp.ui.screens.HomeScreen
+import com.example.mybudgetapp.ui.screens.InfoScreen
 import com.example.mybudgetapp.ui.screens.ProfileScreen
 import com.example.mybudgetapp.ui.screens.SignInScreen
 import com.example.mybudgetapp.ui.screens.SignUpScreen
+import com.example.mybudgetapp.ui.screens.TransactionScreen
 
 import com.example.mybudgetapp.ui.theme.MyBudgetAppTheme
 import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
@@ -45,12 +49,16 @@ import com.facebook.FacebookException
 import com.facebook.FacebookSdk
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     var userData: UserData? = null
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
     private lateinit var FacebookAuthUiClient: FacebookAuthUiClient
+    private val viewModel: Signinviewmodel by viewModels()
 
     //have to do initially in the main activity before create
     private val googleAuthUiClient by lazy {
@@ -67,30 +75,44 @@ class MainActivity : ComponentActivity() {
         //initialize facebook SDK
         FacebookSdk.sdkInitialize(this)
         FacebookAuthUiClient = FacebookAuthUiClient(this)
-
-// Use the new API instead of onActivityResult
         activityResultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
-            FacebookAuthUiClient.getCallbackManager().onActivityResult(
-                result.resultCode,
-                result.resultCode,
-                result.data
-            )
-        }
+            if (result.resultCode == RESULT_OK) {
+                // If result is OK, handle Facebook login result
+                FacebookAuthUiClient.getCallbackManager().onActivityResult(
+                    result.resultCode,
+                    result.resultCode,
+                    result.data
+                )
+                // Update ViewModel state after Facebook login
+                lifecycleScope.launch {
+                    val user = FacebookAuthUiClient.getSignedInUser() // Retrieve the current signed-in Facebook user
+                    if (user != null) {
+                        // Update the ViewModel with the user data
+                        val signInResult = SignInResult(
+                            data = user,
+                            errorMessage = null
+                        )
+                        viewModel.onSignInResult(signInResult)
 
-        /*This is the correct one but still not implemented
-        setContent {
-            MyBudgetAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Navigation(
-                        modifier = Modifier.padding(innerPadding),
-                        authViewModel = authViewModel,
-                        activity = this
-                    )
+                    } else {
+                        val errorMessage = "Facebook login failed or was canceled."
+                        val signInResult = SignInResult(
+                            data = null,
+                            errorMessage = errorMessage  // Provide the error message
+                        )
+                        viewModel.onSignInResult(signInResult)                                        }
                 }
+            } else {
+                // Handle other result codes (e.g., error, cancellation)
+                Toast.makeText(
+                    applicationContext,
+                    "Sign in failed or was canceled.",
+                    Toast.LENGTH_LONG
+                ).show()
             }
-        }*/
+        }
         setContent {
             MyBudgetAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -102,7 +124,7 @@ class MainActivity : ComponentActivity() {
                     val expenseViewModel: ExpenseViewModel = viewModel()
                     val viewModel = viewModel<Signinviewmodel>()
                     val state by viewModel.state.collectAsStateWithLifecycle()
-                    Log.d("Main1", "User Data: $userData")
+
                     NavHost(navController = navController,
                         startDestination = "splash",
                         modifier = Modifier.padding(innerPadding)) {
@@ -133,29 +155,24 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             )
-
-
                             LaunchedEffect(key1 = state.isSignInSuccessful) {
-                                Log.d("Main", state.toString())
                                 if(state.isSignInSuccessful) {
                                     Toast.makeText(
                                         applicationContext,
                                         "Sign in successful",
                                         Toast.LENGTH_LONG
                                     ).show()
-                                    userData = googleAuthUiClient.getSignedInUser()
-                                    navController.navigate("home") {
-                                        popUpTo("sign_in") { inclusive = true } // Clears sign-in from back stack
-                                    }
+                                   // userData = googleAuthUiClient.getSignedInUser()
+                                    navController.navigate("home")
                                     viewModel.resetState()
                                 }
-                            }
 
+
+                            }
                             SignInScreen(
                                 state = state,
                                 navController,
                                 onSignInClick = {
-
                                     lifecycleScope.launch {
                                         if (AuthType == "GOOGLE") {
                                             val signInIntentSender = googleAuthUiClient.signIn()
@@ -180,31 +197,49 @@ class MainActivity : ComponentActivity() {
                                                     } else {
                                                         Toast.makeText(
                                                             applicationContext,
-                                                            "Sign in Fail,Please check the credentials and try again",
+                                                            "Sign in Fail, Please check the credentials and try again",
                                                             Toast.LENGTH_LONG
                                                         ).show()
                                                     }
                                                 }
-                                        } else if(AuthType == "FACEBOOK"){
+                                        } else if (AuthType == "FACEBOOK") {
+                                            val auth = FirebaseAuth.getInstance()
+                                            viewModel.resetState()
 
-                                            //write facebook code here
+                                            // Write Facebook sign-in logic here
                                             FacebookAuthUiClient.login(
-
                                                 onSuccess = { userData ->
-                                                    navController.navigate("home"){
-                                                        popUpTo("sign_in") { inclusive = true } // Remove Profile screen from back stack
-                                                    }
-                                                    viewModel.resetState()
+                                                    auth.currentUser?.let { currentUser ->
+                                                        // Ensure userData is correctly assigned from FirebaseAuth
+                                                        val signedInUser = currentUser.let {
+                                                            UserData(
+                                                                userId = it.uid,
+                                                                username = it.displayName,
+                                                                profilePictureUrl = it.photoUrl?.toString()
+                                                            )
+                                                        }
+                                                        CoroutineScope(Dispatchers.Main).launch {
+                                                            delay(500) // Wait to ensure Firebase updates auth state
+
+                                                            // Set the sign-in state to successful
+                                                            val signInResult = SignInResult(
+                                                                data = signedInUser,
+                                                                errorMessage = null
+                                                            )
+                                                            viewModel.onSignInResult(signInResult)
+                                                        }
+                                                    } ?: Log.e("FacebookAuth", "FirebaseAuth currentUser is null")
                                                 },
                                                 onError = { error ->
                                                     Toast.makeText(
                                                         applicationContext,
-                                                        "Sign in Fail,Please try again",
+                                                        "Sign in failed, please try again",
                                                         Toast.LENGTH_LONG
                                                     ).show()
                                                 }
                                             )
                                         }
+
                                     }
                                 }
                             )
@@ -216,11 +251,19 @@ class MainActivity : ComponentActivity() {
                                 mainCategoryViewModel,
                                 expenseViewModel )
                         }
-                        composable(route = "signup") {Log.d("Main", "3")
+                        composable(route = "signup") {
                             SignUpScreen(navController)
                         }
                         composable(route = "profile") {
                             ProfileScreen(navController,userData)
+                        }
+                        composable(route = "outflow") {
+                            TransactionScreen(navController,
+                                dateAndMonthViewModel,
+                                expenseViewModel)
+                        }
+                        composable(route = "info") {
+                            InfoScreen(navController)
                         }
                     }
                 }

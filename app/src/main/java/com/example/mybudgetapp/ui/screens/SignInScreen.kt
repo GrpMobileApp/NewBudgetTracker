@@ -1,7 +1,5 @@
 package com.example.mybudgetapp.ui.screens
 
-import android.content.Intent
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -19,10 +17,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
@@ -37,8 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -52,13 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.mybudgetapp.ui.MainActivity
-
 import com.example.mybudgetapp.ui.R
 import com.example.mybudgetapp.ui.model.SignInState
-import com.example.mybudgetapp.ui.screens.FirebaseAuthUiClient
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 
 @Composable
 fun SignInScreen(
@@ -78,7 +67,7 @@ fun SignInScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var isPasswordError by remember { mutableStateOf(false) }  // Initialize as false
     var passwordTouched by remember { mutableStateOf(false) }  // Track if password field was touched
-    Log.d("Signin", "4")
+
     // Handling sign-in error if any
     LaunchedEffect(key1 = state.signInError) {
         state.signInError?.let { error ->
@@ -226,7 +215,6 @@ fun SignInScreen(
                 MainActivity.email = email
                 MainActivity.password = password
                 onSignInClick()
-                Log.d("Signin", "5")
                 // Handle email/password sign in here
             },
             modifier = Modifier.fillMaxWidth()
@@ -242,7 +230,7 @@ fun SignInScreen(
         Spacer(modifier = Modifier.height(8.dp))
         // Google Sign-In Button with Image***************************
         OutlinedButton(
-            onClick = { Log.d("Signin", "6")
+            onClick = {
                 MainActivity.AuthType = "GOOGLE"
                 onSignInClick() },
             modifier = Modifier.fillMaxWidth()

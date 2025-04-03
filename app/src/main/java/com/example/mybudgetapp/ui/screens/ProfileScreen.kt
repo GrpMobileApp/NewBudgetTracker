@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun ProfileScreen(navController: NavController, currentuser: UserData?) {
     var userData: UserData? = null
+
     val auth = FirebaseAuth.getInstance()
     val username = currentuser?.username
     val email = auth.currentUser?.email
@@ -79,8 +80,6 @@ Log.d("Profile", "profilePictureUrl: $profilePictureUrl")
                         contentScale = ContentScale.Crop
                     )
                 }
-
-
                 // Email Text
                 Text(
                     text = email ?: "email is not available",
@@ -97,9 +96,8 @@ Log.d("Profile", "profilePictureUrl: $profilePictureUrl")
 
                 // Log Out Button
                 Button(
-                    onClick = {Log.d("Profile1", "User Data: ${userData?.username}, ${userData?.profilePictureUrl}")
+                    onClick = {
                         userData = null // Clear user data
-                        Log.d("Profile", "User Data: ${userData?.username}, ${userData?.profilePictureUrl}")
                         auth.signOut() // Sign the user out
                         navController.navigate("sign_in") { // Navigate to Sign In screen
                             popUpTo("profile") { inclusive = true } // Remove Profile screen from back stack

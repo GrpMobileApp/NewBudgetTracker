@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">MyBudgetApp</string>
     <string name="web_client_id">646914015717-etefcarudcghflettqm4b3jb6gmrqcjp.apps.googleusercontent.com</string>
+
+    <string name="facebook_app_id">1145362430654909</string>
+    <string name="fb_login_protocol_scheme">fb1145362430654909</string>
+    <string name="facebook_client_token">497a54fd302e6f882dd986733af9c4e0</string>
+
+
 </resources>
