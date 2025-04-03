@@ -28,6 +28,7 @@ import com.example.mybudgetapp.ui.screens.ChartScreen
 import com.example.mybudgetapp.ui.screens.GoogleAuthUiClient
 import com.example.mybudgetapp.ui.screens.HomeScreen
 import com.example.mybudgetapp.ui.screens.InfoScreen
+import com.example.mybudgetapp.ui.screens.PieChartScreen
 import com.example.mybudgetapp.ui.screens.SignInScreen
 import com.example.mybudgetapp.ui.screens.SignUpScreen
 import com.example.mybudgetapp.ui.screens.TransactionScreen
@@ -186,6 +187,14 @@ Log.d("Main", "1")
                                 expenseViewModel
                             )
                         }
+                        composable(route = "pie_chart_screen") {
+                            PieChartScreen(
+                                navController,
+                                dateAndMonthViewModel,
+                                expenseViewModel
+                            )
+                        }
+
                     }
                 }
             }
