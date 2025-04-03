@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mybudgetapp.ui.screens.HomeScreen
 import com.example.mybudgetapp.ui.screens.InfoScreen
+import com.example.mybudgetapp.ui.screens.ProfileScreen
 import com.example.mybudgetapp.ui.screens.TransactionScreen
 import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
@@ -34,22 +35,7 @@ fun Navigation(modifier: Modifier = Modifier, activity: Activity) {
 
     //this is for testing purpose only and will be removed later home and add signinscreen
     NavHost(navController = navController, startDestination = "home") {
-        //this is for Signin screen
-        composable(route = "home") {
-            HomeScreen(navController,
-                dateAndMonthViewModel,
-                categoryViewModel,
-                mainCategoryViewModel,
-                expenseViewModel )
-        }
-        //this is for Signup screen
-        composable(route = "home") {
-            HomeScreen(navController,
-                dateAndMonthViewModel,
-                categoryViewModel,
-                mainCategoryViewModel,
-                expenseViewModel )
-        }
+
         composable(route = "home") {
             HomeScreen(navController,
                 dateAndMonthViewModel,
@@ -64,6 +50,9 @@ fun Navigation(modifier: Modifier = Modifier, activity: Activity) {
         }
         composable(route = "info") {
             InfoScreen(navController)
+        }
+        composable(route = "profile") {
+           // ProfileScreen(navController,userData)
         }
     }
 }
