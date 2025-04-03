@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.mybudgetapp.ui.screens.ChartScreen
 import com.example.mybudgetapp.ui.screens.HomeScreen
 import com.example.mybudgetapp.ui.screens.InfoScreen
 import com.example.mybudgetapp.ui.screens.TransactionScreen
@@ -64,6 +65,13 @@ fun Navigation(modifier: Modifier = Modifier, activity: Activity) {
         }
         composable(route = "info") {
             InfoScreen(navController)
+        }
+        composable(route = "insights") {
+            ChartScreen(
+                navController,
+                dateAndMonthViewModel,
+                expenseViewModel
+            )
         }
     }
 }

@@ -24,6 +24,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mybudgetapp.ui.model.SignInState
 import com.example.mybudgetapp.ui.model.UserData
+import com.example.mybudgetapp.ui.screens.ChartScreen
 import com.example.mybudgetapp.ui.screens.GoogleAuthUiClient
 import com.example.mybudgetapp.ui.screens.HomeScreen
 import com.example.mybudgetapp.ui.screens.InfoScreen
@@ -177,6 +178,13 @@ Log.d("Main", "1")
                         }
                         composable(route = "info") {
                             InfoScreen(navController)
+                        }
+                        composable(route = "insights") {
+                            ChartScreen(
+                                navController,
+                                dateAndMonthViewModel,
+                                expenseViewModel
+                            )
                         }
                     }
                 }
