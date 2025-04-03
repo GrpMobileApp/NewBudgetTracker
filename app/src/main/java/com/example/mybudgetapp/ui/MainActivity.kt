@@ -38,11 +38,11 @@ import com.example.mybudgetapp.ui.screens.SignUpScreen
 import com.example.mybudgetapp.ui.screens.TransactionScreen
 
 import com.example.mybudgetapp.ui.theme.MyBudgetAppTheme
-import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.Signinviewmodel
+import com.example.mybudgetapp.ui.viewModel.SubCategoryViewModel
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -119,8 +119,8 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     //create viewmodel instance
                     val dateAndMonthViewModel: DateAndMonthViewModel = viewModel()
-                    val categoryViewModel: CategoryViewModel = viewModel()
                     val mainCategoryViewModel: MainCategoryViewModel = viewModel()
+                    val subCategoryViewModel: SubCategoryViewModel = viewModel()
                     val expenseViewModel: ExpenseViewModel = viewModel()
                     val viewModel = viewModel<Signinviewmodel>()
                     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -247,7 +247,7 @@ class MainActivity : ComponentActivity() {
                         composable(route = "home") {
                             HomeScreen(navController,
                                 dateAndMonthViewModel,
-                                categoryViewModel,
+                                subCategoryViewModel,
                                 mainCategoryViewModel,
                                 expenseViewModel )
                         }
