@@ -218,6 +218,7 @@ fun EditTransactionDialog(
     var description by remember { mutableStateOf(transaction.description) }
     var amount by remember { mutableStateOf(transaction.getAmountAsDouble().toString()) }
     var subCategoryName by remember { mutableStateOf(transaction.subCategoryName) }
+    var amountError by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -262,12 +263,19 @@ fun EditTransactionDialog(
         },
         confirmButton = {
             TextButton(onClick = {
-                val updatedTransaction = transaction.copy(
-                    categoryName = categoryName,
-                    description = description,
-                    amount = amount.toDoubleOrNull() ?: transaction.amount
-                )
-                onSave(updatedTransaction)
+                val amountAsDouble = amount.toDoubleOrNull()
+                if (amountAsDouble == null) {
+                    amountError = "Please enter a valid amount"
+                } else {
+                    val updatedTransaction = transaction.copy(
+                        categoryName = categoryName,
+                        description = description,
+                        amount = amountAsDouble,
+                        subCategoryName = subCategoryName
+                    )
+                    onSave(updatedTransaction)
+                    onDismiss()
+                }
             }) {
                 Text("Save")
             }
