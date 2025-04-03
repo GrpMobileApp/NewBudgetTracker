@@ -29,6 +29,7 @@ import com.example.mybudgetapp.ui.model.UserData
 import com.example.mybudgetapp.ui.screens.FacebookAuthUiClient
 import com.example.mybudgetapp.ui.screens.GoogleAuthUiClient
 import com.example.mybudgetapp.ui.screens.HomeScreen
+import com.example.mybudgetapp.ui.screens.ProfileScreen
 import com.example.mybudgetapp.ui.screens.SignInScreen
 import com.example.mybudgetapp.ui.screens.SignUpScreen
 
@@ -67,7 +68,7 @@ class MainActivity : ComponentActivity() {
         FacebookSdk.sdkInitialize(this)
         FacebookAuthUiClient = FacebookAuthUiClient(this)
 
-        // Use the new API instead of onActivityResult
+// Use the new API instead of onActivityResult
         activityResultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
@@ -76,7 +77,6 @@ class MainActivity : ComponentActivity() {
                 result.resultCode,
                 result.data
             )
-            Log.d("MainFB1", "result.resultCode : ${result.resultCode}, result.data : ${result.data}, FacebookAuthUiClient.getCallbackManager() : ${FacebookAuthUiClient.getCallbackManager()}")
         }
 
         /*This is the correct one but still not implemented
@@ -134,6 +134,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
 
+
                             LaunchedEffect(key1 = state.isSignInSuccessful) {
                                 Log.d("Main", state.toString())
                                 if(state.isSignInSuccessful) {
@@ -142,9 +143,10 @@ class MainActivity : ComponentActivity() {
                                         "Sign in successful",
                                         Toast.LENGTH_LONG
                                     ).show()
-                                    //userData = googleAuthUiClient.getSignedInUser()
-
-                                    navController.navigate("home")
+                                    userData = googleAuthUiClient.getSignedInUser()
+                                    navController.navigate("home") {
+                                        popUpTo("sign_in") { inclusive = true } // Clears sign-in from back stack
+                                    }
                                     viewModel.resetState()
                                 }
                             }
@@ -164,12 +166,17 @@ class MainActivity : ComponentActivity() {
                                             )
                                         } else if (AuthType == "STANDARD") {
                                             val auth = FirebaseAuth.getInstance()
+                                            userData= UserData(
+                                                userId = auth.currentUser?.uid.toString(),
+                                                username = auth.currentUser?.displayName,
+                                                profilePictureUrl = ""//auth.currentUser?.photoUrl.toString()
+                                            )
                                             auth.signInWithEmailAndPassword(email, password)
                                                 .addOnCompleteListener { task ->
                                                     if (task.isSuccessful) {
                                                         navController.navigate("home")
                                                         viewModel.resetState()
-                                                        android.util.Log.d("SignInscreen", "Sign-in successful: ${task.result.user?.uid},  ${task.result.user?.email}, ${task.result.user?.photoUrl}")
+
                                                     } else {
                                                         Toast.makeText(
                                                             applicationContext,
@@ -179,15 +186,22 @@ class MainActivity : ComponentActivity() {
                                                     }
                                                 }
                                         } else if(AuthType == "FACEBOOK"){
+
                                             //write facebook code here
                                             FacebookAuthUiClient.login(
-                                                onSuccess = { user ->
-                                                    Log.d("MainFB2", "User authenticated: ${user?.email}")
-                                                    navController.navigate("home")
+
+                                                onSuccess = { userData ->
+                                                    navController.navigate("home"){
+                                                        popUpTo("sign_in") { inclusive = true } // Remove Profile screen from back stack
+                                                    }
                                                     viewModel.resetState()
                                                 },
                                                 onError = { error ->
-                                                    Log.e("MainFB3", "Login failed: ${error.message}")
+                                                    Toast.makeText(
+                                                        applicationContext,
+                                                        "Sign in Fail,Please try again",
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
                                                 }
                                             )
                                         }
@@ -195,7 +209,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-                        composable(route = "home") {Log.d("Main", "3")
+                        composable(route = "home") {
                             HomeScreen(navController,
                                 dateAndMonthViewModel,
                                 categoryViewModel,
@@ -204,6 +218,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(route = "signup") {Log.d("Main", "3")
                             SignUpScreen(navController)
+                        }
+                        composable(route = "profile") {
+                            ProfileScreen(navController,userData)
                         }
                     }
                 }

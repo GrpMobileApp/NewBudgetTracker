@@ -28,6 +28,7 @@ fun ProfileScreen(navController: NavController, currentuser: UserData?) {
     val profilePictureUrl = currentuser?.profilePictureUrl
     val appLogo = painterResource(id = R.drawable.logowhite)
 
+Log.d("Profile", "profilePictureUrl: $profilePictureUrl")
     // Profile Screen Layout
     Column(
         modifier = Modifier
@@ -61,7 +62,7 @@ fun ProfileScreen(navController: NavController, currentuser: UserData?) {
                 // Profile Picture
                 if (!profilePictureUrl.isNullOrEmpty()) {
                     Image(
-                        painter = rememberImagePainter(profilePictureUrl),
+                        painter = rememberImagePainter(profilePictureUrl),  // Load remote image
                         contentDescription = "Profile Picture",
                         modifier = Modifier
                             .size(120.dp)
@@ -69,20 +70,20 @@ fun ProfileScreen(navController: NavController, currentuser: UserData?) {
                         contentScale = ContentScale.Crop
                     )
                 } else {
-                    Box(
+                    Image(
+                       painter = painterResource(id = R.drawable.iconuserprofile),  // Load local default image
+                        contentDescription = "Default Profile Picture",
                         modifier = Modifier
                             .size(120.dp)
-                            .background(Color.Gray)
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("No Image")
-                    }
+                            .padding(bottom = 16.dp),
+                        contentScale = ContentScale.Crop
+                    )
                 }
+
 
                 // Email Text
                 Text(
-                    text = email ?: "No email available",
+                    text = email ?: "email is not available",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
