@@ -17,6 +17,7 @@ import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.SharedViewModel
 import com.example.mybudgetapp.ui.viewModel.SubCategoryViewModel
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 @Composable
@@ -26,7 +27,9 @@ fun StartPlanning(
     mainCategoryViewModel: MainCategoryViewModel
 ) {
     val sharedViewModel: SharedViewModel = viewModel()
-    val userId = "v3Udk1WkxbV4YqoyNgLL"
+    val auth = FirebaseAuth.getInstance()
+
+    val userId = auth.currentUser?.uid.toString()
     val month by dateAndMonthViewModel.selectedMonth.collectAsState()
     val year by dateAndMonthViewModel.selectedYear.collectAsState()
     val budgetRepository = BudgetRepository()

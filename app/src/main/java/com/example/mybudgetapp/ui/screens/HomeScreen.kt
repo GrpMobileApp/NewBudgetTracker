@@ -2,6 +2,7 @@ package com.example.mybudgetapp.ui.screens
 
 
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -47,6 +48,8 @@ import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.SharedViewModel
 import com.example.mybudgetapp.ui.viewModel.SubCategoryViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 
 @Composable
 fun HomeScreen(
@@ -58,6 +61,7 @@ fun HomeScreen(
 ) {
     val budgetViewModel: BudgetViewModel = viewModel()
     val sharedViewModel: SharedViewModel = viewModel()
+    val auth = FirebaseAuth.getInstance()
 
     // State to hold the budgetId
     val budgetId by sharedViewModel.budgetId.collectAsState()
@@ -95,7 +99,7 @@ fun HomeScreen(
             // selected month and year from ViewModel
             val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
             val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
-            val userId = "v3Udk1WkxbV4YqoyNgLL"
+            val userId = auth.currentUser?.uid.toString()
 
             // Fetch the budgetId when the month and year changes
             LaunchedEffect(selectedMonth.toString(), selectedYear.toString()) {

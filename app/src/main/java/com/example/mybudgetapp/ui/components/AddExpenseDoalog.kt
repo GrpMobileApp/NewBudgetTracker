@@ -30,6 +30,7 @@ import com.example.mybudgetapp.ui.model.SubCategoryItem
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.SharedViewModel
 import com.example.mybudgetapp.ui.viewModel.SubCategoryViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
@@ -48,10 +49,12 @@ fun AddExpenseDialog(
     var amount by remember { mutableStateOf("") }
     val sharedViewModel: SharedViewModel = viewModel()
     val subCategoryViewModel: SubCategoryViewModel = viewModel()
+    val auth = FirebaseAuth.getInstance()
+
 
     // State to hold the budgetId
     val budgetId by sharedViewModel.budgetId.collectAsState()
-    val userId = "v3Udk1WkxbV4YqoyNgLL"
+    val userId = auth.currentUser?.uid.toString()
 
     val mainCategoryList by mainCategoryViewModel.mainCategoryList.collectAsState()
     val mainCategoryWithSubcategories by mainCategoryViewModel.mainCategoryWithSubcategories.collectAsState()

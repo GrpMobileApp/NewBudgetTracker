@@ -42,11 +42,14 @@ import com.example.mybudgetapp.ui.model.SubCategoryItem
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.SharedViewModel
 import com.example.mybudgetapp.ui.viewModel.SubCategoryViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCategoryViewModel: SubCategoryViewModel) {
     val sharedViewModel: SharedViewModel = viewModel()
-    val userId = "v3Udk1WkxbV4YqoyNgLL"
+    val auth = FirebaseAuth.getInstance()
+
+    val userId = auth.currentUser?.uid.toString()
 
     // Collect the main category list from the mainCategoryViewModel
     val mainCategoryList by mainCategoryViewModel.mainCategoryList.collectAsState()
