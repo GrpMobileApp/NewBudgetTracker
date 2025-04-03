@@ -70,7 +70,7 @@ dependencies {
     implementation ("com.facebook.android:facebook-android-sdk:latest.release")
     implementation ("com.facebook.android:facebook-login:latest.release")
     implementation ("com.squareup.okhttp3:okhttp:4.12.0")
-
+    implementation(libs.androidx.runtime.livedata)
 
 
     // Testing
