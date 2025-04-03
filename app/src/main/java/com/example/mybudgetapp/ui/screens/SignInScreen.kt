@@ -228,7 +228,6 @@ fun SignInScreen(
                 onSignInClick()
                 Log.d("Signin", "5")
                 // Handle email/password sign in here
-
             },
             modifier = Modifier.fillMaxWidth()
                 .height(50.dp),
@@ -274,5 +273,37 @@ fun SignInScreen(
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
+        // FaceBook Sign-In Button with Image***************************
+        OutlinedButton(
+            onClick = {
+                MainActivity.AuthType = "FACEBOOK"
+                onSignInClick() },
+            modifier = Modifier.fillMaxWidth()
+                .height(50.dp),
+            shape = RoundedCornerShape(10.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .height(18.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.iconfacebook),
+                    contentDescription = "FaceBook Sign-In",
+                    modifier = Modifier
+                        .height(30.dp)
+                )
+                Text(
+                    text = "Sign in with FaceBook",
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(start = 40.dp), // Adjust padding based on image size
+                    fontSize = 16.sp,
+                    color = Color.Black
+                )
+            }
+        }
     }
 }
