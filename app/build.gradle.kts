@@ -63,7 +63,8 @@ dependencies {
     implementation(libs.com.google.firebase.firebase.firestore.ktx)
     implementation(platform(libs.firebase.bom.v3270))
 
-
+//for chart
+    implementation(libs.mpandroidchart)
 
     // Google Authentication
     implementation(libs.androidx.credentials)
