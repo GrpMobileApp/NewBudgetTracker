@@ -2,7 +2,9 @@ package com.example.mybudgetapp.ui.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -13,18 +15,18 @@ import androidx.navigation.NavController
 import com.example.mybudgetapp.ui.appbars.BottomBar
 import com.example.mybudgetapp.ui.appbars.MainTopBar
 import com.example.mybudgetapp.ui.viewModel.TransactionViewModel
-import com.example.mybudgetapp.ui.model.TransactionType
-import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
-import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import androidx.compose.runtime.livedata.observeAsState
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.font.FontWeight
+import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
+import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 
 @Composable
 fun ChartScreen(
@@ -37,7 +39,7 @@ fun ChartScreen(
     val userId = FirebaseAuth.getInstance().currentUser?.uid
     val transactions by viewModel.transactions.observeAsState(emptyList())
 
-    // Log the transactions for debugging
+    //log the transactions
     Log.d("ChartScreen", "Transactions: $transactions")
 
     //ensure the transactions list is loaded before proceeding
@@ -48,32 +50,34 @@ fun ChartScreen(
     //group transactions by subcategory
     val groupedTransactions = transactions.groupBy { it.subCategoryName }
 
-    // Log grouped transactions for debugging
+    //log grouped transactions
     Log.d("ChartScreen", "Grouped Transactions: $groupedTransactions")
 
-    //initialize BarChart data
+    // Initialize BarChart data
     val barChartEntries = mutableListOf<BarEntry>()
     val labels = mutableListOf<String>()
+    val barColors = mutableListOf<Int>()
 
     //loop through each grouped transaction and calculate total amount for each subcategory
     groupedTransactions.forEach { (subCategoryName, transactionList) ->
         val totalAmount = transactionList.sumOf { it.getAmountAsDouble() }
 
-        // Log the total amount for debugging
+        //log the total amount
         Log.d("ChartScreen", "Subcategory: $subCategoryName, Total Amount: $totalAmount")
 
         //only add entries with non-zero amounts
         if (totalAmount > 0) {
             //check if the transaction is an expense or income
             val barColor = if (transactionList.first().categoryName == "expense") {
-                Color.Red.toArgb() // Red for expenses
+                Color.Red.toArgb() //red for expenses
             } else {
-                Color.Green.toArgb() // Green for income
+                Color.Green.toArgb() //green for income
             }
 
-            // Add BarEntry for each subcategory with corresponding color
+            //add BarEntry for each subcategory with corresponding color
             barChartEntries.add(BarEntry(barChartEntries.size.toFloat(), totalAmount.toFloat()))
             labels.add(subCategoryName)
+            barColors.add(barColor)
         }
     }
 
@@ -95,19 +99,17 @@ fun ChartScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            AndroidView(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp),
-                factory = { ctx ->
-                    BarChart(ctx).apply {
-                        description.isEnabled = false
+            if (barChartEntries.isNotEmpty()) {
+                AndroidView(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp),
+                    factory = { ctx ->
+                        BarChart(ctx).apply {
+                            description.isEnabled = false
 
-                        //sdd check for whether we have valid entries to display
-                        if (barChartEntries.isNotEmpty()) {
                             val dataSet = BarDataSet(barChartEntries, "Transactions").apply {
-                                //set the color dynamically for each bar
-                                color = Color.Blue.toArgb()
+                                colors = barColors
                                 valueTextSize = 14f
                                 valueTextColor = Color.Black.toArgb()
                             }
@@ -115,36 +117,51 @@ fun ChartScreen(
                             this.data = data
 
                             //set the x-axis labels
-                            xAxis.valueFormatter = object : com.github.mikephil.charting.formatter.IndexAxisValueFormatter(labels) {}
-                            invalidate() //refresh the BarChart
-                        } else {
-                            Log.d("ChartScreen", "No valid entries to display in chart.")
-                        }
+                            xAxis.valueFormatter = IndexAxisValueFormatter(labels)
+                            xAxis.granularity = 1f
+                            xAxis.isGranularityEnabled = true
 
-                        //customize the chart appearance
-                        axisLeft.textColor = Color.Black.toArgb()
-                        axisRight.isEnabled = false
-                        xAxis.textColor = Color.Black.toArgb()
-                        legend.isEnabled = false
-                    }
-                },
-                update = { chart ->
-                    //only update the chart data if necessary
-                    if (barChartEntries.isNotEmpty()) {
+                            //customize the chart appearance
+                            axisLeft.textColor = Color.Black.toArgb()
+                            axisRight.isEnabled = false
+                            xAxis.textColor = Color.Black.toArgb()
+                            legend.isEnabled = true
+                            legend.textColor = Color.Black.toArgb()
+
+                            invalidate() // Refresh the BarChart
+                        }
+                    },
+                    update = { chart ->
                         val dataSet = BarDataSet(barChartEntries, "Transactions").apply {
-                            //set the color dynamically for each bar
-                            color = Color.Blue.toArgb()
+                            colors = barColors
                             valueTextSize = 14f
                             valueTextColor = Color.Black.toArgb()
                         }
                         val data = BarData(dataSet)
                         chart.data = data
 
-                        chart.xAxis.valueFormatter = object : com.github.mikephil.charting.formatter.IndexAxisValueFormatter(labels) {}
-                        chart.invalidate() //refresh the chart
+                        chart.xAxis.valueFormatter = IndexAxisValueFormatter(labels)
+                        chart.invalidate()
                     }
-                }
-            )
+                )
+            } else {
+                Text(
+                    text = "No data available",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = Color.Gray,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+
+            //add labels below the chart
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                Text(
+                    text = "Income & Expense",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = Color.Black,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
         }
     }
 }
