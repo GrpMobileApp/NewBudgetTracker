@@ -23,7 +23,6 @@ class GoogleAuthUiClient(
     private val auth = Firebase.auth
 
     suspend fun signIn(): IntentSender? {
-        Log.d("GoogleAuthClient", "7")
         val result = try {
             oneTapClient.beginSignIn(
                 buildSignInRequest()
@@ -37,7 +36,6 @@ class GoogleAuthUiClient(
     }
 
     suspend fun signInWithIntent(intent: Intent): SignInResult {
-        Log.d("GoogleAuthClient", "8")
         val credential = oneTapClient.getSignInCredentialFromIntent(intent)
         val googleIdToken = credential.googleIdToken
         val googleCredentials = GoogleAuthProvider.getCredential(googleIdToken, null)
@@ -64,7 +62,6 @@ class GoogleAuthUiClient(
     }
 
     suspend fun signOut() {
-        Log.d("GoogleAuthClient", "9")
         try {
             oneTapClient.signOut().await()
             auth.signOut()
@@ -75,7 +72,6 @@ class GoogleAuthUiClient(
     }
 
     fun getSignedInUser(): UserData? = auth.currentUser?.run {
-        Log.d("GoogleAuthClient", "10")
         UserData(
             userId = uid,
             username = displayName,
@@ -84,7 +80,6 @@ class GoogleAuthUiClient(
     }
 
     private fun buildSignInRequest(): BeginSignInRequest {
-        Log.d("GoogleAuthClient", "11")
         return BeginSignInRequest.Builder()
             .setGoogleIdTokenRequestOptions(
                 GoogleIdTokenRequestOptions.builder()
@@ -95,5 +90,6 @@ class GoogleAuthUiClient(
             )
             .setAutoSelectEnabled(false)
             .build()
+
     }
 }
