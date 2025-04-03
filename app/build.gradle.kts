@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.material.icons.extended)
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     // Firebase
     implementation(platform(libs.com.google.firebase.firebase.bom4))
@@ -64,6 +65,13 @@ dependencies {
     implementation(libs.androidx.credentials.play.services.auth)
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation(libs.androidx.media3.common.ktx)
+
+    //Facebook Authentication
+    implementation ("com.facebook.android:facebook-android-sdk:latest.release")
+    implementation ("com.facebook.android:facebook-login:latest.release")
+    implementation ("com.squareup.okhttp3:okhttp:4.12.0")
+
+
 
     // Testing
     testImplementation(libs.junit)

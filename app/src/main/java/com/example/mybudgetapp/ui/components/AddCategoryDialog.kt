@@ -16,14 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AddCategoryDialog(onDismiss: () -> Unit, onSubmit: (String, Float) -> Unit) {
+fun AddCategoryDialog(onDismiss: () -> Unit, onSubmit: (String, Float) -> Unit, mainCategoryName:String) {
     var category by remember  { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
 
     // Define the dialog UI
     AlertDialog(
         onDismissRequest = { onDismiss() },
-        title = { Text("Add Income") },
+        title = { Text(mainCategoryName) },
 
         // Content of the dialog
         text = {
