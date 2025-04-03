@@ -1,6 +1,7 @@
 package com.example.mybudgetapp.ui
 
 import SplashScreen
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -8,8 +9,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -22,30 +25,40 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.mybudgetapp.ui.model.SignInResult
 import com.example.mybudgetapp.ui.model.SignInState
 import com.example.mybudgetapp.ui.model.UserData
-import com.example.mybudgetapp.ui.screens.ChartScreen
+import com.example.mybudgetapp.ui.screens.FacebookAuthUiClient
 import com.example.mybudgetapp.ui.screens.GoogleAuthUiClient
 import com.example.mybudgetapp.ui.screens.HomeScreen
 import com.example.mybudgetapp.ui.screens.InfoScreen
+import com.example.mybudgetapp.ui.screens.ProfileScreen
 import com.example.mybudgetapp.ui.screens.SignInScreen
 import com.example.mybudgetapp.ui.screens.SignUpScreen
 import com.example.mybudgetapp.ui.screens.TransactionScreen
 
 import com.example.mybudgetapp.ui.theme.MyBudgetAppTheme
+import com.example.mybudgetapp.ui.viewModel.CategoryViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
-
 import com.example.mybudgetapp.ui.viewModel.Signinviewmodel
-import com.example.mybudgetapp.ui.viewModel.SubCategoryViewModel
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.FacebookSdk
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : ComponentActivity() {
     var userData: UserData? = null
+    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
+    private lateinit var FacebookAuthUiClient: FacebookAuthUiClient
+    private val viewModel: Signinviewmodel by viewModels()
 
     //have to do initially in the main activity before create
     private val googleAuthUiClient by lazy {
@@ -57,39 +70,68 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        FirebaseFirestore.setLoggingEnabled(true)
         enableEdgeToEdge()
-        /*This is the correct one but still not implemented
-        setContent {
-            MyBudgetAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Navigation(
-                        modifier = Modifier.padding(innerPadding),
-                        authViewModel = authViewModel,
-                        activity = this
-                    )
+        //this is for facebook part testing
+        //initialize facebook SDK
+        FacebookSdk.sdkInitialize(this)
+        FacebookAuthUiClient = FacebookAuthUiClient(this)
+        activityResultLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                // If result is OK, handle Facebook login result
+                FacebookAuthUiClient.getCallbackManager().onActivityResult(
+                    result.resultCode,
+                    result.resultCode,
+                    result.data
+                )
+                // Update ViewModel state after Facebook login
+                lifecycleScope.launch {
+                    val user = FacebookAuthUiClient.getSignedInUser() // Retrieve the current signed-in Facebook user
+                    if (user != null) {
+                        // Update the ViewModel with the user data
+                        val signInResult = SignInResult(
+                            data = user,
+                            errorMessage = null
+                        )
+                        viewModel.onSignInResult(signInResult)
+
+                    } else {
+                        val errorMessage = "Facebook login failed or was canceled."
+                        val signInResult = SignInResult(
+                            data = null,
+                            errorMessage = errorMessage  // Provide the error message
+                        )
+                        viewModel.onSignInResult(signInResult)                                        }
                 }
+            } else {
+                // Handle other result codes (e.g., error, cancellation)
+                Toast.makeText(
+                    applicationContext,
+                    "Sign in failed or was canceled.",
+                    Toast.LENGTH_LONG
+                ).show()
             }
-        }*/
+        }
         setContent {
             MyBudgetAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     val navController = rememberNavController()
                     //create viewmodel instance
                     val dateAndMonthViewModel: DateAndMonthViewModel = viewModel()
-                    val subCategoryViewModel: SubCategoryViewModel = viewModel()
+                    val categoryViewModel: CategoryViewModel = viewModel()
                     val mainCategoryViewModel: MainCategoryViewModel = viewModel()
                     val expenseViewModel: ExpenseViewModel = viewModel()
                     val viewModel = viewModel<Signinviewmodel>()
                     val state by viewModel.state.collectAsStateWithLifecycle()
-                    Log.d("Main1", "User Data: $userData")
+
                     NavHost(navController = navController,
                         startDestination = "splash",
                         modifier = Modifier.padding(innerPadding)) {
-Log.d("Main", "1")
+
                         composable("splash") { SplashScreen(navController) }
                         composable("sign_in") {
-                            Log.d("Main", "2")
+
                             LaunchedEffect(key1 = Unit) {
 
                                 if(googleAuthUiClient.getSignedInUser() != null) {
@@ -113,27 +155,24 @@ Log.d("Main", "1")
                                     }
                                 }
                             )
-
                             LaunchedEffect(key1 = state.isSignInSuccessful) {
-                                Log.d("Main", state.toString())
                                 if(state.isSignInSuccessful) {
                                     Toast.makeText(
                                         applicationContext,
                                         "Sign in successful",
                                         Toast.LENGTH_LONG
                                     ).show()
-                                    //userData = googleAuthUiClient.getSignedInUser()
-                                    Log.d("Main", userData.toString())
+                                   // userData = googleAuthUiClient.getSignedInUser()
                                     navController.navigate("home")
                                     viewModel.resetState()
                                 }
-                            }
 
+
+                            }
                             SignInScreen(
                                 state = state,
                                 navController,
                                 onSignInClick = {
-                                    Log.d("Main", "2,1")
                                     lifecycleScope.launch {
                                         if (AuthType == "GOOGLE") {
                                             val signInIntentSender = googleAuthUiClient.signIn()
@@ -144,52 +183,97 @@ Log.d("Main", "1")
                                             )
                                         } else if (AuthType == "STANDARD") {
                                             val auth = FirebaseAuth.getInstance()
+                                            userData= UserData(
+                                                userId = auth.currentUser?.uid.toString(),
+                                                username = auth.currentUser?.displayName,
+                                                profilePictureUrl = ""//auth.currentUser?.photoUrl.toString()
+                                            )
                                             auth.signInWithEmailAndPassword(email, password)
                                                 .addOnCompleteListener { task ->
                                                     if (task.isSuccessful) {
                                                         navController.navigate("home")
                                                         viewModel.resetState()
-                                                        android.util.Log.d("SignInscreen", "Sign-in successful: ${task.result.user?.uid},  ${task.result.user?.email}, ${task.result.user?.photoUrl}")
+
                                                     } else {
-                                                        android.util.Log.e("SignIn", "Sign-in failed: ${task.exception?.message}")
+                                                        Toast.makeText(
+                                                            applicationContext,
+                                                            "Sign in Fail, Please check the credentials and try again",
+                                                            Toast.LENGTH_LONG
+                                                        ).show()
                                                     }
                                                 }
+                                        } else if (AuthType == "FACEBOOK") {
+                                            val auth = FirebaseAuth.getInstance()
+                                            viewModel.resetState()
+
+                                            // Write Facebook sign-in logic here
+                                            FacebookAuthUiClient.login(
+                                                onSuccess = { userData ->
+                                                    auth.currentUser?.let { currentUser ->
+                                                        // Ensure userData is correctly assigned from FirebaseAuth
+                                                        val signedInUser = currentUser.let {
+                                                            UserData(
+                                                                userId = it.uid,
+                                                                username = it.displayName,
+                                                                profilePictureUrl = it.photoUrl?.toString()
+                                                            )
+                                                        }
+                                                        CoroutineScope(Dispatchers.Main).launch {
+                                                            delay(500) // Wait to ensure Firebase updates auth state
+
+                                                            // Set the sign-in state to successful
+                                                            val signInResult = SignInResult(
+                                                                data = signedInUser,
+                                                                errorMessage = null
+                                                            )
+                                                            viewModel.onSignInResult(signInResult)
+                                                        }
+                                                    } ?: Log.e("FacebookAuth", "FirebaseAuth currentUser is null")
+                                                },
+                                                onError = { error ->
+                                                    Toast.makeText(
+                                                        applicationContext,
+                                                        "Sign in failed, please try again",
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
+                                                }
+                                            )
                                         }
+
                                     }
                                 }
                             )
                         }
-                        composable(route = "home") {Log.d("Main", "3")
+                        composable(route = "home") {
                             HomeScreen(navController,
                                 dateAndMonthViewModel,
-                                subCategoryViewModel,
+                                categoryViewModel,
                                 mainCategoryViewModel,
                                 expenseViewModel )
                         }
-                        composable(route = "signup") {Log.d("Main", "3")
+                        composable(route = "signup") {
                             SignUpScreen(navController)
                         }
+                        composable(route = "profile") {
+                            ProfileScreen(navController,userData)
+                        }
                         composable(route = "outflow") {
-                            TransactionScreen(
-                                navController,
+                            TransactionScreen(navController,
                                 dateAndMonthViewModel,
-                                expenseViewModel
-                            )
+                                expenseViewModel)
                         }
                         composable(route = "info") {
                             InfoScreen(navController)
-                        }
-                        composable(route = "insights") {
-                            ChartScreen(
-                                navController,
-                                dateAndMonthViewModel,
-                                expenseViewModel
-                            )
                         }
                     }
                 }
             }
         }
+    }
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        FacebookAuthUiClient.getCallbackManager().onActivityResult(requestCode, resultCode, data)
     }
     companion object {
         var AuthType: String =""

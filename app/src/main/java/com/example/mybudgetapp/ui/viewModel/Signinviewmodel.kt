@@ -15,12 +15,22 @@ class Signinviewmodel: ViewModel() {
 
     fun onSignInResult(result: SignInResult) {
         _state.update { it.copy(
-            isSignInSuccessful = result.data != null,
+            isSignInSuccessful = result.data != null ,
             signInError = result.errorMessage
+        ) }
+    }
+    // Handle sign-in failure (e.g., Facebook login error)
+    fun onSignInFailure(errorMessage: String) {
+        _state.update { it.copy(
+            isSignInSuccessful = false,
+            signInError = errorMessage
         ) }
     }
     fun resetState() {
         _state.update { SignInState() }
+    }
+    fun updateSignInState(isSuccessful: Boolean) {
+        _state.value = _state.value.copy(isSignInSuccessful = isSuccessful)
     }
     //**********************************************************************************
 }
