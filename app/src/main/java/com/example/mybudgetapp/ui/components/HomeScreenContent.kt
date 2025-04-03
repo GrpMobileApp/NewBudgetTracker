@@ -19,6 +19,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -97,7 +99,10 @@ fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCategoryV
                 Column(
                     modifier = Modifier.padding(10.dp)
                 ) {
-                    Text(text = category.mainCategoryName.uppercase())
+                    Text(
+                        text = category.mainCategoryName.uppercase(),
+                        fontWeight = FontWeight.Bold
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Display subcategories for this main category
@@ -111,6 +116,9 @@ fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCategoryV
                             Text(text = subCat.subCategoryName, fontSize = 15.sp)
                             Text(text = subCat.plannedAmount.toString(), fontSize = 15.sp)
                         }
+
+                        // Add the separating line
+                        HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
                     }
 
                     // "Add Item" button
