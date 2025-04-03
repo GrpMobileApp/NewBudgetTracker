@@ -48,6 +48,14 @@ fun TransactionScreen(
         }
     }
 
+    // Calculate total income, total expense, and remaining balance
+    val totalIncome = filteredTransactions.filter { it.getTransactionType() == TransactionType.INCOME }
+        .sumOf { it.getAmountAsDouble() }
+    val totalExpense = filteredTransactions.filter { it.getTransactionType() == TransactionType.EXPENSE }
+        .sumOf { it.getAmountAsDouble() }
+    val remainingBalance = totalIncome - totalExpense
+
+
     //load transactions for the logged-in user
     LaunchedEffect(userId) {
         userId?.let { viewModel.loadTransactions(it) }
@@ -62,7 +70,29 @@ fun TransactionScreen(
                 .fillMaxWidth()
                 .padding(innerPadding)
                 .padding(16.dp)
-        ) {
+        )
+        {
+            // Display total income, total expense, and remaining balance
+            Text(
+                text = "Total Income: €${"%.2f".format(totalIncome)}",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Total Expense: €${"%.2f".format(totalExpense)}",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.Red
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Remaining Balance: €${"%.2f".format(remainingBalance)}",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = if (remainingBalance >= 0) Color.Green else Color.Red
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             //search Bar
             OutlinedTextField(
                 value = searchQuery,
