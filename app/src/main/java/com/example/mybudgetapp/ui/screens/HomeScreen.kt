@@ -41,6 +41,7 @@ import com.example.mybudgetapp.ui.appbars.BottomBar
 import com.example.mybudgetapp.ui.appbars.MainTopBar
 import com.example.mybudgetapp.ui.components.HomeScreenContent
 import com.example.mybudgetapp.ui.components.LoadingSpinner
+import com.example.mybudgetapp.ui.components.RemainingScreenContent
 import com.example.mybudgetapp.ui.components.SpentScreenContent
 import com.example.mybudgetapp.ui.components.StartPlanning
 import com.example.mybudgetapp.ui.viewModel.BudgetViewModel
@@ -149,6 +150,9 @@ fun HomeScreen(
                     }
                     "Spent" -> {
                         SpentScreenContent(mainCategoryViewModel, subCategoryViewModel)
+                    }
+                    "Remaining" -> {
+                        RemainingScreenContent(mainCategoryViewModel, subCategoryViewModel)
                     }
                     else -> {
                         Log.d("HomeScreen", "Unknown option: $selectedOption")
