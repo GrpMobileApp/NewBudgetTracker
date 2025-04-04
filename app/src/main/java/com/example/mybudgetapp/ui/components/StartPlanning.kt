@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.mybudgetapp.data.BudgetRepository
 import com.example.mybudgetapp.ui.viewModel.BudgetViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
@@ -22,7 +23,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun StartPlanning(
-    subCategoryViewModel:SubCategoryViewModel,
+    navController: NavController,
     dateAndMonthViewModel: DateAndMonthViewModel,
     mainCategoryViewModel: MainCategoryViewModel
 ) {
@@ -41,33 +42,40 @@ fun StartPlanning(
     // State to hold the result of the fetch and save operation
     var isSavingComplete by remember { mutableStateOf(false) }
 
-    // Fetch budgetId when month or year changes
-    LaunchedEffect(month, year) {
-        isLoading = true
-
-        budgetRepository.getBudgetId(userId, month, year) { fetchedBudgetId ->
-            if (fetchedBudgetId != null) {
-                budgetId = fetchedBudgetId
-                sharedViewModel.setBudgetId(fetchedBudgetId) // Store it in SharedViewModel
-
-                // Save main categories only after fetching budgetId
-                mainCategoryViewModel.saveMainCategories(userId, budgetId!!) { success ->
-                    isSavingComplete = success
-                    isLoading = false
-                }
-            } else {
-                isLoading = false
+    LaunchedEffect(isSavingComplete) {
+        if (isSavingComplete) {
+            delay(50)
+            navController.navigate("home") {
+                popUpTo("startPlanning") { inclusive = true }
             }
         }
     }
 
-    // Show a message or HomeScreenContent based on the result
+    // Fetch budgetId when month or year changes
+    LaunchedEffect(month, year) {
+        if (budgetId == null) { // Avoid redundant calls
+            isLoading = true
+            budgetRepository.getBudgetId(userId, month, year) { fetchedBudgetId ->
+                fetchedBudgetId?.let {
+                    budgetId = it
+                    sharedViewModel.setBudgetId(it) // Store it in SharedViewModel
+
+                    // Save main categories only after fetching budgetId
+                    mainCategoryViewModel.saveMainCategories(userId, it) { success ->
+                        isSavingComplete = success
+                        isLoading = false
+                    }
+                } ?: run {
+                    isLoading = false
+                }
+            }
+        }
+    }
+
+    // UI logic
     if (isLoading) {
         LoadingSpinner()
-    }else if (budgetId != null) {
-        HomeScreenContent(mainCategoryViewModel, subCategoryViewModel)
-    } else {
-        // Show a loading state or an error message if saving fails
+    } else if (!isSavingComplete || budgetId == null) {
         Text("Failed to load budget. Please try again.")
     }
 }
