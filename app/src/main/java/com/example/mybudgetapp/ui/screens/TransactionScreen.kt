@@ -1,5 +1,6 @@
 package com.example.mybudgetapp.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -105,7 +106,7 @@ fun TransactionScreen(
             //display filtered transactions
             LazyColumn {
                 items(filteredTransactions) { transaction ->
-                    TransactionItem(transaction, viewModel)
+                    TransactionItem(transaction = transaction, viewModel = viewModel, navController = navController)
                 }
             }
         }
@@ -113,7 +114,7 @@ fun TransactionScreen(
 }
 
 @Composable
-fun TransactionItem(transaction: Transaction, viewModel: TransactionViewModel) {
+fun TransactionItem(transaction: Transaction, navController: NavController, viewModel: TransactionViewModel) {
     //state variable to control the visibility of the delete confirmation dialog
     var showDialog by remember { mutableStateOf(false) }
     //for edit
@@ -163,11 +164,15 @@ fun TransactionItem(transaction: Transaction, viewModel: TransactionViewModel) {
         )
     }
 
+    // When a transaction item is clicked, navigate to the detail screen
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+            .padding(vertical = 8.dp)
+            .clickable {
+                // Navigate to the transaction detail screen
+                navController.navigate("transactionDetails/${transaction.id}")
+            }
     ) {
         Row(
             modifier = Modifier
