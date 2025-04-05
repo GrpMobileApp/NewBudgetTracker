@@ -52,4 +52,8 @@ class SubCategoryViewModel: ViewModel() {
     fun updateTotalSpendAndRemaining(subCategoryId: String, totalSpend:Double, remaining:Double, onResult: (Boolean) -> Unit){
         repository.updateTotalSpendAndRemaining(subCategoryId,totalSpend, remaining, onResult)
     }
+
+    fun updateSubCategoryDetails(subCategoryId: String, subCategoryName: String, plannedAmount: Double, remaining:Double, onResult: (Boolean) -> Unit){
+        repository.updateSubCategoryData(subCategoryId, subCategoryName, plannedAmount, remaining, onResult)
+    }
 }

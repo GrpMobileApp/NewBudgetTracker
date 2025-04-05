@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mybudgetapp.data.MainCategoryWithSubcategories
 import com.example.mybudgetapp.ui.model.CategoryItem
 import com.example.mybudgetapp.ui.model.SubCategoryItem
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
@@ -76,7 +77,14 @@ fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCategoryV
     //Combined list of main categories with their subcategories
     val mainCategoryWithSubcategories by mainCategoryViewModel.mainCategoryWithSubcategories.collectAsState()
 
+    //To track selected subcategory
+    var selectedMainCategory by remember { mutableStateOf<MainCategoryWithSubcategories?>(null) }
 
+    //To track selected subcategory
+    var selectedSubCategory by remember { mutableStateOf<SubCategoryItem?>(null) }
+
+    //state control the visibility of su category update dialog
+    var showSubCategoryUpdateDialog by remember { mutableStateOf(false) }
 
     // Content of home screen
     Column(
@@ -110,6 +118,12 @@ fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCategoryV
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .clickable {
+                                    selectedMainCategory = category
+                                    selectedSubCategory = subCat
+                                    showSubCategoryUpdateDialog = true
+
+                                }
                                 .padding(vertical = 4.dp), // Space between items
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
@@ -151,6 +165,14 @@ fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCategoryV
                 }
             },
             mainCategoryName = selectedCategory!! // Pass correct category name
+        )
+    }
+    // Show dialog when user clicks on sub category
+    if (showSubCategoryUpdateDialog && selectedMainCategory != null && selectedSubCategory != null) {
+        UpdateDeleteSubCategoryDialog (
+            onDismiss = {showSubCategoryUpdateDialog = false},
+            mainCategoryViewModel = mainCategoryViewModel,
+            subCategory = selectedSubCategory!!
         )
     }
 }

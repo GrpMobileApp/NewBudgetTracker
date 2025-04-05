@@ -85,4 +85,25 @@ class SubCategoryRepository {
                 onResult(false)  // Callback on error
             }
     }
+
+    //Function to update sub category details
+    fun updateSubCategoryData(subCategoryId: String,subCategoryName: String,plannedAmount: Double, remaining:Double, onResult: (Boolean) -> Unit){
+        val subCategory = mapOf(
+            "remainingAmount" to remaining,
+            "subCategoryName" to subCategoryName,
+            "plannedAmount" to plannedAmount
+        )
+        // Navigating to the right path
+        db.collection("sub_categories")
+            .document(subCategoryId)
+            .update(subCategory)
+            .addOnSuccessListener {
+                Log.d("Firestore", "Total spend and remaining updated ")
+                onResult(true)  // Callback on success
+            }
+            .addOnFailureListener {
+                    e -> Log.e("FirestoreError", "Error updating subCategory: ${e.message}")
+                onResult(false)  // Callback on error
+            }
+    }
 }
