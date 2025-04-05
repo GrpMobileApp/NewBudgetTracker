@@ -106,4 +106,19 @@ class SubCategoryRepository {
                 onResult(false)  // Callback on error
             }
     }
+
+    //Delete sub category
+    fun deleteSubCategory(subCategoryId: String, onResult: (Boolean) -> Unit){
+        // Navigating to the right path
+        db.collection("sub_categories")
+            .document(subCategoryId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("Firestore", "A sub category deleted")
+            }
+            .addOnFailureListener {
+                    e -> Log.e("FirestoreError", "Error deleting subCategory: ${e.message}")
+            }
+    }
+
 }

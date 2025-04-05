@@ -56,4 +56,8 @@ class SubCategoryViewModel: ViewModel() {
     fun updateSubCategoryDetails(subCategoryId: String, subCategoryName: String, plannedAmount: Double, remaining:Double, onResult: (Boolean) -> Unit){
         repository.updateSubCategoryData(subCategoryId, subCategoryName, plannedAmount, remaining, onResult)
     }
+
+    fun deleteSelectedSubCategory(subCategoryId: String, onResult: (Boolean) -> Unit){
+        repository.deleteSubCategory(subCategoryId, onResult)
+    }
 }

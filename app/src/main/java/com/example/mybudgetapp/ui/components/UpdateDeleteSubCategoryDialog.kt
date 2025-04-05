@@ -110,6 +110,17 @@ fun UpdateDeleteSubCategoryDialog(
                 //Button to delete sub category
                 Button(
                     onClick = {
+                        if (budgetId != null && subCategory.subCategoryId.isNotBlank()) {
+                            subCategoryViewModel.deleteSelectedSubCategory(
+                                subCategoryId = subCategory.subCategoryId,
+                                onResult = { success ->
+                                    if (success) {
+                                        mainCategoryViewModel.fetchMainCategoryWithSubcategories(userId,budgetId!!)
+                                        onDismiss()
+                                    }
+                                }
+                            )
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7A2624)),
                     modifier = Modifier.fillMaxWidth()
