@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -62,7 +63,7 @@ fun UpdateDeleteSubCategoryDialog(
                     .padding(16.dp)
                     .fillMaxWidth()
             ) {
-                Text(text = subCategoryName, style = MaterialTheme.typography.headlineSmall)
+                Text(text = subCat.subCategoryName, style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.height(10.dp))
 
                 OutlinedTextField(
@@ -105,6 +106,15 @@ fun UpdateDeleteSubCategoryDialog(
                     ) {
                         Text("Update")
                     }
+                }
+                //Button to delete sub category
+                Button(
+                    onClick = {
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7A2624)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Delete ${subCat.subCategoryName}")
                 }
             }
         }
