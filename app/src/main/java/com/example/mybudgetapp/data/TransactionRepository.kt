@@ -40,4 +40,38 @@ class TransactionRepository {
                 onResult(false)  // Callback on error
             }
     }
+
+    //Delete transactions
+    fun deleteTransactions(subCategoryId: String, onResult: (Boolean) -> Unit){
+
+        // Navigating to the right path
+        db.collection("transactions")
+            .whereEqualTo("sub_category_id", subCategoryId)
+            .get()
+            .addOnSuccessListener { result ->
+                // If the query is successful, retrieve the matching documents
+                val matchingDocs = result.documents
+
+                // Create a new batch operation
+                val batch = db.batch()
+
+                // Loop through each matching document and add a delete operation to the batch
+                matchingDocs.forEach { doc ->
+                    batch.delete(doc.reference)
+                }
+
+                // Sending all delete operations to Firestore at once
+                batch.commit()
+                    .addOnSuccessListener {
+                        onResult(true)
+                    }
+                    .addOnFailureListener {
+                        onResult(false)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirestoreError", "Error fetching documents: ${e.message}")
+                onResult(false)
+            }
+    }
 }

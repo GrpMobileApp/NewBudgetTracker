@@ -26,10 +26,10 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
 import com.example.mybudgetapp.ui.model.SubCategoryItem
+import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.SharedViewModel
 import com.example.mybudgetapp.ui.viewModel.SubCategoryViewModel
 import com.google.firebase.auth.FirebaseAuth
-
 
 @Composable
 fun UpdateDeleteSubCategoryDialog(
@@ -39,6 +39,7 @@ fun UpdateDeleteSubCategoryDialog(
 ) {
     val sharedViewModel: SharedViewModel = viewModel()
     val subCategoryViewModel: SubCategoryViewModel = viewModel()
+    val expenseViewModel: ExpenseViewModel = viewModel()
     val auth = FirebaseAuth.getInstance()
 
     val subCat by remember { mutableStateOf(subCategory) }
@@ -48,7 +49,6 @@ fun UpdateDeleteSubCategoryDialog(
     // State to hold the budgetId
     val budgetId by sharedViewModel.budgetId.collectAsState()
     val userId = auth.currentUser?.uid.toString()
-
 
 
     Dialog(onDismissRequest = { onDismiss() }) {
@@ -86,6 +86,7 @@ fun UpdateDeleteSubCategoryDialog(
                     }
                     Spacer(modifier = Modifier.weight(1f))
 
+                    //button to update
                     Button(
                         onClick = {
                             if (budgetId != null && subCategory.subCategoryId.isNotBlank() && subCategoryName.isNotBlank() && subCategoryAmount.toDouble() > 0) {
@@ -99,6 +100,7 @@ fun UpdateDeleteSubCategoryDialog(
                                             mainCategoryViewModel.fetchMainCategoryWithSubcategories(userId,budgetId!!)
                                             onDismiss()
                                         }
+
                                     }
                                 )
                             }
@@ -112,14 +114,22 @@ fun UpdateDeleteSubCategoryDialog(
                     onClick = {
                         if (budgetId != null && subCategory.subCategoryId.isNotBlank()) {
                             subCategoryViewModel.deleteSelectedSubCategory(
-                                subCategoryId = subCategory.subCategoryId,
-                                onResult = { success ->
-                                    if (success) {
-                                        mainCategoryViewModel.fetchMainCategoryWithSubcategories(userId,budgetId!!)
+                                subCategoryId = subCategory.subCategoryId
+                            ) { subSuccess ->
+                                if (subSuccess) {
+                                    expenseViewModel.removeRelevantTransactions(
+                                        subCategoryId = subCategory.subCategoryId
+                                    ) {
+                                        mainCategoryViewModel.fetchMainCategoryWithSubcategories(userId, budgetId!!)
                                         onDismiss()
+
                                     }
+                                } else {
+                                    onDismiss()
                                 }
-                            )
+                            }
+                        } else {
+                            onDismiss()
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7A2624)),

@@ -115,9 +115,11 @@ class SubCategoryRepository {
             .delete()
             .addOnSuccessListener {
                 Log.d("Firestore", "A sub category deleted")
+                onResult(true)  // Callback on success
             }
             .addOnFailureListener {
                     e -> Log.e("FirestoreError", "Error deleting subCategory: ${e.message}")
+                    onResult(false)  // Callback on error
             }
     }
 

@@ -35,4 +35,8 @@ class ExpenseViewModel:ViewModel() {
         */
         repository.saveTransactions(userId,budgetId,categoryName,subCategoryId,subCategoryName,description,amount,date,onResult)
     }
+
+    fun removeRelevantTransactions(subCategoryId: String, onResult :(Boolean) -> Unit){
+        repository.deleteTransactions(subCategoryId, onResult)
+    }
 }
