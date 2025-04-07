@@ -29,7 +29,6 @@ import com.example.mybudgetapp.ui.screens.ChartScreen
 import com.example.mybudgetapp.ui.screens.GoogleAuthUiClient
 import com.example.mybudgetapp.ui.screens.HomeScreen
 import com.example.mybudgetapp.ui.screens.InfoScreen
-import com.example.mybudgetapp.ui.screens.ProfileScreen
 import com.example.mybudgetapp.ui.screens.PieChartScreen
 import com.example.mybudgetapp.ui.screens.SignInScreen
 import com.example.mybudgetapp.ui.screens.SignUpScreen
@@ -198,15 +197,15 @@ Log.d("Main", "1")
                                 expenseViewModel
                             )
                         }
+                        composable("transactionDetails/{transactionId}", arguments = listOf(navArgument("transactionId") { type = NavType.StringType })) { backStackEntry ->
+                            val transactionId = backStackEntry.arguments?.getString("transactionId") ?: return@composable
+                            TransactionDetailScreen(navController, dateAndMonthViewModel, expenseViewModel,transactionId)
+                        }
+
                     }
                 }
             }
         }
-    }
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        FacebookAuthUiClient.getCallbackManager().onActivityResult(requestCode, resultCode, data)
     }
     companion object {
         var AuthType: String =""

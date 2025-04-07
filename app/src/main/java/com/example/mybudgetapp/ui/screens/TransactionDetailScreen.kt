@@ -26,60 +26,87 @@ fun TransactionDetailScreen(
     transactionId: String,
     viewModel: TransactionViewModel = viewModel()
 ) {
-    // State to hold the transaction details
-    var transaction by remember { mutableStateOf<Transaction?>(null) }
+    //state variable to hold transaction details
+    val transactionState = remember { mutableStateOf<Transaction?>(null) }
 
-    // Fetch the transaction details using the transactionId
+    //load the transaction details based on transactionId
     LaunchedEffect(transactionId) {
-        viewModel.loadTransactionById(transactionId) { fetchedTransaction ->
-            transaction = fetchedTransaction
+        viewModel.loadTransactionById(transactionId) { transaction ->
+            transactionState.value = transaction
         }
     }
 
-    // Display the transaction details
-    if (transaction != null) {
-        Scaffold(
-            topBar = { MainTopBar(navController, dateAndMonthViewModel, expenseViewModel) },
-            bottomBar = { BottomBar(navController) }
-        ) { paddingValues ->
+    //get the transaction details
+    val transaction = transactionState.value
+
+    Scaffold(
+        topBar = { MainTopBar(navController, dateAndMonthViewModel, expenseViewModel) },
+        bottomBar = { BottomBar(navController) }
+    ) { innerPadding ->
+        if (transaction != null) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(paddingValues)
+                    .padding(innerPadding)
                     .padding(16.dp)
             ) {
+                //header for transaction details
                 Text(
-                    text = "Category: ${transaction?.categoryName}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Subcategory: ${transaction?.subCategoryName}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Amount: €${"%.2f".format(transaction?.amount)}",
+                    text = "Transaction Details",
+                    style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold,
-                    color = if (transaction?.getTransactionType() == TransactionType.INCOME) Color.Green else Color.Red
+                    color = MaterialTheme.colorScheme.primary
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                //category and Description
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = "Category: ${transaction.categoryName}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Description: ${transaction.description}",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Subcategory: ${transaction.subCategoryName}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                //amount highlight with color based on transaction type
                 Text(
-                    text = "Description: ${transaction?.description}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Date: ${transaction?.date?.toString() ?: "Unknown"}",
-                    style = MaterialTheme.typography.bodyMedium
+                    text = "Amount: €${"%.2f".format(transaction.getAmountAsDouble())}",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = if (transaction.getTransactionType() == TransactionType.INCOME) Color.Green else Color.Red
                 )
             }
-        }
-    } else {
-        // Show loading spinner while fetching transaction
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+        } else {
+            //display a loading indicator while the transaction is being fetched
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }
