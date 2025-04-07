@@ -22,19 +22,24 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.mybudgetapp.ui.model.SignInResult
 import com.example.mybudgetapp.ui.model.SignInState
 import com.example.mybudgetapp.ui.model.UserData
+import com.example.mybudgetapp.ui.screens.ChartScreen
 import com.example.mybudgetapp.ui.screens.FacebookAuthUiClient
 import com.example.mybudgetapp.ui.screens.GoogleAuthUiClient
 import com.example.mybudgetapp.ui.screens.HomeScreen
 import com.example.mybudgetapp.ui.screens.InfoScreen
+import com.example.mybudgetapp.ui.screens.PieChartScreen
 import com.example.mybudgetapp.ui.screens.ProfileScreen
 import com.example.mybudgetapp.ui.screens.SignInScreen
 import com.example.mybudgetapp.ui.screens.SignUpScreen
+import com.example.mybudgetapp.ui.screens.TransactionDetailScreen
 import com.example.mybudgetapp.ui.screens.TransactionScreen
 
 import com.example.mybudgetapp.ui.theme.MyBudgetAppTheme
@@ -162,7 +167,7 @@ class MainActivity : ComponentActivity() {
                                         "Sign in successful",
                                         Toast.LENGTH_LONG
                                     ).show()
-                                   // userData = googleAuthUiClient.getSignedInUser()
+                                    // userData = googleAuthUiClient.getSignedInUser()
                                     navController.navigate("home")
                                     viewModel.resetState()
                                 }
@@ -264,6 +269,24 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(route = "info") {
                             InfoScreen(navController)
+                        }
+                        composable(route = "insights") {
+                            ChartScreen(
+                                navController,
+                                dateAndMonthViewModel,
+                                expenseViewModel
+                            )
+                        }
+                        composable(route = "pie_chart_screen") {
+                            PieChartScreen(
+                                navController,
+                                dateAndMonthViewModel,
+                                expenseViewModel
+                            )
+                        }
+                        composable("transactionDetails/{transactionId}", arguments = listOf(navArgument("transactionId") { type = NavType.StringType })) { backStackEntry ->
+                            val transactionId = backStackEntry.arguments?.getString("transactionId") ?: return@composable
+                            TransactionDetailScreen(navController, dateAndMonthViewModel, expenseViewModel,transactionId)
                         }
                     }
                 }

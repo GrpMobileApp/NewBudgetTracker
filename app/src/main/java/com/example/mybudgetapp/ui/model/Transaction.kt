@@ -12,7 +12,7 @@ data class Transaction(
 
 
     @get:PropertyName("amount") @set:PropertyName("amount")
-    var amount: Any = 0.0, //can be String or Double
+    var amount: Double = 0.0, //can be String or Double
 
     @get:PropertyName("category_name") @set:PropertyName("category_name")
     var categoryName: String = "",
@@ -43,11 +43,7 @@ data class Transaction(
 
     //function to safely retrieve amount as Double
     fun getAmountAsDouble(): Double {
-        return when (amount) {
-            is String -> (amount as String).toDoubleOrNull() ?: 0.0
-            is Double -> amount as Double
-            is Long -> (amount as Long).toDouble()  //handle Long type
-            else -> 0.0
-        }
+        return amount
     }
 }
+

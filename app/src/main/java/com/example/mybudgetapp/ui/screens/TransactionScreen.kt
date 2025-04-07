@@ -1,5 +1,6 @@
 package com.example.mybudgetapp.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -48,6 +49,14 @@ fun TransactionScreen(
         }
     }
 
+    // Calculate total income, total expense, and remaining balance
+    val totalIncome = filteredTransactions.filter { it.getTransactionType() == TransactionType.INCOME }
+        .sumOf { it.getAmountAsDouble() }
+    val totalExpense = filteredTransactions.filter { it.getTransactionType() == TransactionType.EXPENSE }
+        .sumOf { it.getAmountAsDouble() }
+    val remainingBalance = totalIncome - totalExpense
+
+
     //load transactions for the logged-in user
     LaunchedEffect(userId) {
         userId?.let { viewModel.loadTransactions(it) }
@@ -62,7 +71,29 @@ fun TransactionScreen(
                 .fillMaxWidth()
                 .padding(innerPadding)
                 .padding(16.dp)
-        ) {
+        )
+        {
+            // Display total income, total expense, and remaining balance
+            Text(
+                text = "Total Income: €${"%.2f".format(totalIncome)}",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Total Expense: €${"%.2f".format(totalExpense)}",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.Red
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Remaining Balance: €${"%.2f".format(remainingBalance)}",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = if (remainingBalance >= 0) Color.Green else Color.Red
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             //search Bar
             OutlinedTextField(
                 value = searchQuery,
@@ -75,7 +106,7 @@ fun TransactionScreen(
             //display filtered transactions
             LazyColumn {
                 items(filteredTransactions) { transaction ->
-                    TransactionItem(transaction, viewModel)
+                    TransactionItem(transaction = transaction, viewModel = viewModel, navController = navController)
                 }
             }
         }
@@ -83,7 +114,7 @@ fun TransactionScreen(
 }
 
 @Composable
-fun TransactionItem(transaction: Transaction, viewModel: TransactionViewModel) {
+fun TransactionItem(transaction: Transaction, navController: NavController, viewModel: TransactionViewModel) {
     //state variable to control the visibility of the delete confirmation dialog
     var showDialog by remember { mutableStateOf(false) }
     //for edit
@@ -133,11 +164,15 @@ fun TransactionItem(transaction: Transaction, viewModel: TransactionViewModel) {
         )
     }
 
+    // When a transaction item is clicked, navigate to the detail screen
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+            .padding(vertical = 8.dp)
+            .clickable {
+                // Navigate to the transaction detail screen
+                navController.navigate("transactionDetails/${transaction.id}")
+            }
     ) {
         Row(
             modifier = Modifier
@@ -188,6 +223,7 @@ fun EditTransactionDialog(
     var description by remember { mutableStateOf(transaction.description) }
     var amount by remember { mutableStateOf(transaction.getAmountAsDouble().toString()) }
     var subCategoryName by remember { mutableStateOf(transaction.subCategoryName) }
+    var amountError by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -232,12 +268,19 @@ fun EditTransactionDialog(
         },
         confirmButton = {
             TextButton(onClick = {
-                val updatedTransaction = transaction.copy(
-                    categoryName = categoryName,
-                    description = description,
-                    amount = amount.toDoubleOrNull() ?: transaction.amount
-                )
-                onSave(updatedTransaction)
+                val amountAsDouble = amount.toDoubleOrNull()
+                if (amountAsDouble == null) {
+                    amountError = "Please enter a valid amount"
+                } else {
+                    val updatedTransaction = transaction.copy(
+                        categoryName = categoryName,
+                        description = description,
+                        amount = amountAsDouble,
+                        subCategoryName = subCategoryName
+                    )
+                    onSave(updatedTransaction)
+                    onDismiss()
+                }
             }) {
                 Text("Save")
             }
