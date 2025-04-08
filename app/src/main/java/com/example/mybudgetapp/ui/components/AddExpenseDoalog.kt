@@ -85,7 +85,7 @@ fun AddExpenseDialog(
                     .padding(16.dp)
                     .fillMaxWidth()
             ) {
-                Text(text = "Add Expense", style = MaterialTheme.typography.headlineSmall)
+                Text(text = "Add Transaction", style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // Use DropdownLayout for Category
