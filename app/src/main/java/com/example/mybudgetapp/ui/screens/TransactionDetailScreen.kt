@@ -1,6 +1,8 @@
 package com.example.mybudgetapp.ui.screens
 
+import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,6 +19,7 @@ import com.example.mybudgetapp.ui.model.TransactionType
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.TransactionViewModel
+
 
 @Composable
 fun TransactionDetailScreen(
@@ -39,6 +42,10 @@ fun TransactionDetailScreen(
     //get the transaction details
     val transaction = transactionState.value
 
+    // Get formatted date for transaction
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+    val formattedDate = transaction?.date?.let { dateFormat.format(it) } ?: "Unknown Date"
+
     Scaffold(
         topBar = { MainTopBar(navController, dateAndMonthViewModel, expenseViewModel) },
         bottomBar = { BottomBar(navController) }
@@ -60,13 +67,24 @@ fun TransactionDetailScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                //category and Description
-                Row(
+                // Display transaction date with a nice visual style
+                Text(
+                    text = "Date: $formattedDate",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Category and Description in a Card
+                Card(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F4F8)) // Light background
                 ) {
                     Column(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
                             text = "Category: ${transaction.categoryName}",
@@ -89,13 +107,29 @@ fun TransactionDetailScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                //amount highlight with color based on transaction type
-                Text(
-                    text = "Amount: €${"%.2f".format(transaction.getAmountAsDouble())}",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = if (transaction.getTransactionType() == TransactionType.INCOME) Color.Green else Color.Red
-                )
+                // Amount highlight with color based on transaction type in a Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (transaction.getTransactionType() == TransactionType.INCOME)
+                            Color(0xFFA8D5BA) // Light Green for income
+                        else
+                            Color(0xFFF8B3B1) // Light Red for expense
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Amount: €${"%.2f".format(transaction.getAmountAsDouble())}",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
+                }
             }
         } else {
             //display a loading indicator while the transaction is being fetched

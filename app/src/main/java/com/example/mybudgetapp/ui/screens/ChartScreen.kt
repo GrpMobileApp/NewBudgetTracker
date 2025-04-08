@@ -29,6 +29,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
+import com.github.mikephil.charting.formatter.ValueFormatter
+
 
 @Composable
 fun ChartScreen(
@@ -40,6 +42,8 @@ fun ChartScreen(
     val context = LocalContext.current
     val userId = FirebaseAuth.getInstance().currentUser?.uid
     val transactions by viewModel.transactions.observeAsState(emptyList())
+    val categoryNames = mutableListOf<String>()  // List to store category names
+    val labels = mutableListOf<String>()  // List to store category names for x-axis
 
     // Log the transactions
     Log.d("ChartScreen", "Transactions: $transactions")
@@ -65,7 +69,6 @@ fun ChartScreen(
 
     // Initialize BarChart data
     val barChartEntries = mutableListOf<BarEntry>()
-    val labels = mutableListOf<String>()
     val barColors = mutableListOf<Int>()
 
     // Iterate through each transaction instead of grouping by date
@@ -84,7 +87,8 @@ fun ChartScreen(
 
             // Add each transaction as a separate entry
             barChartEntries.add(BarEntry(index.toFloat(), amount.toFloat()))
-            labels.add(transaction.date.toString())  // Or format the date as needed
+            labels.add(transaction.categoryName ?: "Unknown") // Add category name to labels
+            categoryNames.add(transaction.categoryName ?: "Unknown")
             barColors.add(barColor.toArgb())  // Convert Color to ARGB integer
         }
     }
@@ -107,6 +111,12 @@ fun ChartScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center
         ) {
+            // Display the selected date at the top of the screen
+            Text(
+                text = "$selectedMonth $selectedYear", // Display selected month and year
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.padding(bottom = 16.dp) // Add some space below the date
+            )
             if (barChartEntries.isNotEmpty()) {
                 AndroidView(
                     modifier = Modifier
@@ -136,19 +146,37 @@ fun ChartScreen(
                             legend.isEnabled = true
                             legend.textColor = Color.Black.toArgb()
 
+                            // Set up the Y-axis value formatter to show the amount
+                            axisLeft.valueFormatter = object : ValueFormatter() {
+                                override fun getFormattedValue(value: Float): String {
+                                    // Format the Y-axis value to show the amount
+                                    return "€${value.toInt()}"
+                                }
+                            }
+
                             invalidate() // Refresh the BarChart
                         }
                     },
+
                     update = { chart ->
                         val dataSet = BarDataSet(barChartEntries, "Transactions").apply {
                             colors = barColors
                             valueTextSize = 14f
                             valueTextColor = Color.Black.toArgb()
+                            setDrawValues(true)
                         }
                         val data = BarData(dataSet)
                         chart.data = data
 
                         chart.xAxis.valueFormatter = IndexAxisValueFormatter(labels)
+
+                        // Update the Y-axis value formatter to show the amount
+                        chart.axisLeft.valueFormatter = object : ValueFormatter() {
+                            override fun getFormattedValue(value: Float): String {
+                                // Format the Y-axis value to show the amount
+                                return "$${value.toInt()}"
+                            }
+                        }
                         chart.invalidate()
                     }
                 )
