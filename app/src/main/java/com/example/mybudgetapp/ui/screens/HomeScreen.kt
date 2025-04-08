@@ -41,6 +41,8 @@ import com.example.mybudgetapp.ui.appbars.BottomBar
 import com.example.mybudgetapp.ui.appbars.MainTopBar
 import com.example.mybudgetapp.ui.components.HomeScreenContent
 import com.example.mybudgetapp.ui.components.LoadingSpinner
+import com.example.mybudgetapp.ui.components.RemainingScreenContent
+import com.example.mybudgetapp.ui.components.SpentScreenContent
 import com.example.mybudgetapp.ui.components.StartPlanning
 import com.example.mybudgetapp.ui.viewModel.BudgetViewModel
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
@@ -67,20 +69,14 @@ fun HomeScreen(
     val budgetId by sharedViewModel.budgetId.collectAsState()
 
     // Track plan button click state
-    var isPlanningStarted by remember { mutableStateOf(false) }
-
+    val isPlanningStarted by sharedViewModel.isPlanningStarted.collectAsState()
     // Context for Toast
     val context = LocalContext.current
 
     // List of selectable budget categories (Planned, Spent, and Remaining)
     val mainOptionList = listOf("Planned", "Spent", "Remaining")
-    // Declare mutable state for selected option(planned, spent or Remaining)
-    var selectedOption by remember { mutableStateOf("Planned") }
-
-    // Function to update the selected option(planned, spent or Remaining)
-    fun onOptionSelected(opt: String) {
-        selectedOption = opt
-    }
+    // Get selected option from ViewModel
+    val selectedOption by sharedViewModel.selectedOption.collectAsState()
 
     // Add a loading state
     var isLoading by remember { mutableStateOf(true) }
@@ -106,9 +102,10 @@ fun HomeScreen(
                 budgetViewModel.getBudgetId(userId, selectedMonth, selectedYear) { id ->
                     sharedViewModel.setBudgetId(id)
                     isLoading = false
+                    Log.d("HomeScreen", "Fetched budgetId: $id")
                 }
-                isPlanningStarted = false
             }
+
 
             // Content Row for main category options
             Row(
@@ -124,7 +121,7 @@ fun HomeScreen(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .weight(1f)
-                            .clickable { selectedOption = option }
+                            .clickable { sharedViewModel.setSelectedOption(option) }
                             .background(
                                 color = if (isSelected) Color.White else MaterialTheme.colorScheme.primary,
                                 shape = RoundedCornerShape(16.dp)
@@ -142,72 +139,83 @@ fun HomeScreen(
             }
             if (isLoading){
                 LoadingSpinner()
-            }else {
+            }else if (isPlanningStarted) {
+                // Conditionally render StartPlanning composable
+                StartPlanning(navController, dateAndMonthViewModel, mainCategoryViewModel)
+            }else if (budgetId != null){
                 // Handle UI based on budgetId
-                if (budgetId != null || isPlanningStarted){
-                    HomeScreenContent(mainCategoryViewModel, subCategoryViewModel)
-                } else {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 25.dp, start = 10.dp, end = 10.dp),
-                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 10.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                when (selectedOption) {
+                    "Planned" -> {
+                        HomeScreenContent(mainCategoryViewModel, subCategoryViewModel)
+                    }
+                    "Spent" -> {
+                        SpentScreenContent(mainCategoryViewModel, subCategoryViewModel)
+                    }
+                    "Remaining" -> {
+                        RemainingScreenContent(mainCategoryViewModel, subCategoryViewModel)
+                    }
+                    else -> {
+                        Log.d("HomeScreen", "Unknown option: $selectedOption")
+                    }
+                }
+            } else {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 25.dp, start = 10.dp, end = 10.dp),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 10.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(
-                            modifier = Modifier.padding(10.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "Let's plan your month",
-                                fontSize = 20.sp
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Let's plan your month",
+                            fontSize = 20.sp
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                            Image(
-                                painter = painterResource(id = R.drawable.budget),
-                                contentDescription = "budget"
-                            )
+                        Image(
+                            painter = painterResource(id = R.drawable.budget),
+                            contentDescription = "budget"
+                        )
 
-                            Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
 
-                            Text(
-                                text = "Select the relavant month in topbar",
-                                fontSize = 20.sp
-                            )
+                        Text(
+                            text = "Select the relavant month in topbar",
+                            fontSize = 20.sp
+                        )
 
-                            Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
 
-                            Button(onClick = {
-                                // Save budget on button click
-                                budgetViewModel.saveBudget(userId, selectedMonth, selectedYear) { success ->
-                                    Toast.makeText(
-                                        context,
-                                        if (success) "Budget saved successfully!" else "Failed to save budget!",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                        Button(onClick = {
+                            // Save budget on button click
+                            budgetViewModel.saveBudget(userId, selectedMonth, selectedYear) { success ->
+                                Toast.makeText(
+                                    context,
+                                    if (success) "Budget saved successfully!" else "Failed to save budget!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
 
-                                    // Trigger the display of the StartPlanning composable
-                                    isPlanningStarted = true
+                                if (success) {
+                                    sharedViewModel.setSelectedOption("Planned")
+                                    sharedViewModel.setPlanningStarted(true)
                                 }
                             }
-                            ) {
-                                Text(
-                                    text = "Start planning",
-                                    fontSize = 20.sp
-                                )
-                            }
-
                         }
+                        ) {
+                            Text(
+                                text = "Start planning",
+                                fontSize = 20.sp
+                            )
+                        }
+
                     }
                 }
             }
-            // Conditionally render StartPlanning composable
-            if (isPlanningStarted) {
-                StartPlanning(subCategoryViewModel, dateAndMonthViewModel, mainCategoryViewModel)
-                //HomeScreenContent(mainCategoryViewModel, subCategoryViewModel)
 
-            }
         }
     }
 }

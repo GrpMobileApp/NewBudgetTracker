@@ -40,6 +40,24 @@ class TransactionViewModel : ViewModel() {
             }
     }
 
+    // ViewModel method to load a single transaction by its ID
+    fun loadTransactionById(transactionId: String, onTransactionLoaded: (Transaction) -> Unit) {
+        db.collection("transactions")
+            .document(transactionId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val transaction = document.toObject(Transaction::class.java)
+                    transaction?.id = document.id
+                    onTransactionLoaded(transaction ?: Transaction())
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Error getting transaction", e)
+            }
+    }
+
+
     //to delete transaction
     fun deleteTransaction(transaction: Transaction) {
         if (transaction.id.isNotEmpty()) {

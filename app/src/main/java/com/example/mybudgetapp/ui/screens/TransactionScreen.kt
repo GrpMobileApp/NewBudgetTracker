@@ -1,5 +1,6 @@
 package com.example.mybudgetapp.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,6 +26,10 @@ import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.TransactionViewModel
 import com.google.firebase.auth.FirebaseAuth
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Locale
 
 @Composable
 fun TransactionScreen(
@@ -42,11 +47,37 @@ fun TransactionScreen(
     val transactions by viewModel.transactions.observeAsState(emptyList())
 
     //filter transactions based on search query
-    val filteredTransactions by remember(searchQuery, transactions) {
+    /*val filteredTransactions by remember(searchQuery, transactions) {
         derivedStateOf {
             transactions.filter { it.subCategoryName.contains(searchQuery, ignoreCase = true) }
         }
+    }*/
+
+    val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
+    val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
+
+    val filteredTransactions by remember(searchQuery, transactions, selectedMonth, selectedYear) {
+        derivedStateOf {
+            transactions.filter { transaction ->
+                val calendar = Calendar.getInstance()
+                transaction.date?.let { date ->
+                    calendar.time = date
+                    val monthMatch = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) == selectedMonth
+                    val yearMatch = calendar.get(Calendar.YEAR).toString() == selectedYear
+                    val queryMatch = transaction.subCategoryName.contains(searchQuery, ignoreCase = true)
+                    monthMatch && yearMatch && queryMatch
+                } ?: false
+            }
+        }
     }
+
+    // Calculate total income, total expense, and remaining balance
+    val totalIncome = filteredTransactions.filter { it.getTransactionType() == TransactionType.INCOME }
+        .sumOf { it.getAmountAsDouble() }
+    val totalExpense = filteredTransactions.filter { it.getTransactionType() == TransactionType.EXPENSE }
+        .sumOf { it.getAmountAsDouble() }
+    val remainingBalance = totalIncome - totalExpense
+
 
     //load transactions for the logged-in user
     LaunchedEffect(userId) {
@@ -62,7 +93,29 @@ fun TransactionScreen(
                 .fillMaxWidth()
                 .padding(innerPadding)
                 .padding(16.dp)
-        ) {
+        )
+        {
+            // Display total income, total expense, and remaining balance
+            Text(
+                text = "Total Income: €${"%.2f".format(totalIncome)}",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Total Expense: €${"%.2f".format(totalExpense)}",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.Red
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Remaining Balance: €${"%.2f".format(remainingBalance)}",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = if (remainingBalance >= 0) Color.Green else Color.Red
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             //search Bar
             OutlinedTextField(
                 value = searchQuery,
@@ -73,17 +126,29 @@ fun TransactionScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             //display filtered transactions
-            LazyColumn {
-                items(filteredTransactions) { transaction ->
-                    TransactionItem(transaction, viewModel)
+            if (filteredTransactions.isEmpty()) {
+                Text(
+                    text = "No transactions added in this date.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Gray,
+                    modifier = Modifier
+                        .padding(top = 24.dp)
+                        .fillMaxWidth()
+                )
+            } else {
+                LazyColumn {
+                    items(filteredTransactions) { transaction ->
+                        TransactionItem(transaction = transaction, viewModel = viewModel, navController = navController)
+                    }
                 }
             }
+
+        }
         }
     }
-}
 
 @Composable
-fun TransactionItem(transaction: Transaction, viewModel: TransactionViewModel) {
+fun TransactionItem(transaction: Transaction, navController: NavController, viewModel: TransactionViewModel) {
     //state variable to control the visibility of the delete confirmation dialog
     var showDialog by remember { mutableStateOf(false) }
     //for edit
@@ -133,11 +198,15 @@ fun TransactionItem(transaction: Transaction, viewModel: TransactionViewModel) {
         )
     }
 
+    // When a transaction item is clicked, navigate to the detail screen
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+            .padding(vertical = 8.dp)
+            .clickable {
+                // Navigate to the transaction detail screen
+                navController.navigate("transactionDetails/${transaction.id}")
+            }
     ) {
         Row(
             modifier = Modifier
@@ -188,6 +257,7 @@ fun EditTransactionDialog(
     var description by remember { mutableStateOf(transaction.description) }
     var amount by remember { mutableStateOf(transaction.getAmountAsDouble().toString()) }
     var subCategoryName by remember { mutableStateOf(transaction.subCategoryName) }
+    var amountError by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -215,7 +285,7 @@ fun EditTransactionDialog(
                 //input for amount
                 OutlinedTextField(
                     value = amount,
-                    onValueChange = { amount = it },
+                    onValueChange = { amount = it  },
                     label = { Text("Amount") },
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
@@ -232,12 +302,19 @@ fun EditTransactionDialog(
         },
         confirmButton = {
             TextButton(onClick = {
-                val updatedTransaction = transaction.copy(
-                    categoryName = categoryName,
-                    description = description,
-                    amount = amount.toDoubleOrNull() ?: transaction.amount
-                )
-                onSave(updatedTransaction)
+                val amountAsDouble = amount.toDoubleOrNull()
+                if (amountAsDouble == null) {
+                    amountError = "Please enter a valid amount"
+                } else {
+                    val updatedTransaction = transaction.copy(
+                        categoryName = categoryName,
+                        description = description,
+                        amount = amountAsDouble,
+                        subCategoryName = subCategoryName
+                    )
+                    onSave(updatedTransaction)
+                    onDismiss()
+                }
             }) {
                 Text("Save")
             }

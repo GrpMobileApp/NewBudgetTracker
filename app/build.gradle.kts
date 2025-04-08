@@ -60,9 +60,13 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
 
+    //for chart
+    implementation(libs.mpandroidchart)
+
     // Google Authentication
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
+
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation(libs.androidx.media3.common.ktx)
 
