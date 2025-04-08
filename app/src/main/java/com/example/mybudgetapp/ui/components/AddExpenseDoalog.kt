@@ -66,6 +66,12 @@ fun AddExpenseDialog(
     LaunchedEffect(Unit) {
         mainCategoryViewModel.fetchMainCategoryWithSubcategories(userId,budgetId!!)
     }
+    val amountValue = amount.toFloatOrNull() ?: 0f
+    val isFormValid = category.isNotBlank() &&
+            subCategory.isNotBlank() &&
+            note.isNotBlank() &&
+            !amountValue.isNaN() &&
+            amountValue > 0
 
     Dialog (onDismissRequest = { onDismiss() }) {
         Surface (
@@ -139,7 +145,7 @@ fun AddExpenseDialog(
 
                     Button(
                         onClick = {
-                            val amountValue = amount.toFloatOrNull() ?: 0f
+
                             if (budgetId != null && !subCategoryId.isNullOrBlank() && category.isNotBlank() && subCategory.isNotBlank() && amountValue > 0) {
                                 expenseViewModel.storeExpense(
                                     userId = userId,
@@ -168,7 +174,8 @@ fun AddExpenseDialog(
                                     }
                                 }
                             }
-                        }
+                        },
+                        enabled = isFormValid
                     ) {
                         Text("Submit")
                     }
