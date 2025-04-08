@@ -43,6 +43,7 @@ import com.example.mybudgetapp.ui.components.AddExpenseDialog
 import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
+import com.example.mybudgetapp.ui.viewModel.SharedViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -50,6 +51,7 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 fun MainTopBar(navController: NavController, dateAndMonthViewModel: DateAndMonthViewModel, expenseViewModel: ExpenseViewModel ){
     val mainCategoryViewModel:MainCategoryViewModel = viewModel()
+    val sharedViewModel: SharedViewModel = viewModel()
     var expanded by remember {  mutableStateOf(false) } // Controls dropdown visibility
     val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
     val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
@@ -60,6 +62,10 @@ fun MainTopBar(navController: NavController, dateAndMonthViewModel: DateAndMonth
 
     //state control the visibility of expense adding dialog
     var showExpenseAddDialog by remember { mutableStateOf(false) }
+
+    // State to hold the budgetId
+    val budgetId by sharedViewModel.budgetId.collectAsState()
+
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
@@ -158,16 +164,18 @@ fun MainTopBar(navController: NavController, dateAndMonthViewModel: DateAndMonth
             }
         },
         actions = {
-            //plus icon button to add expenses
-            IconButton(
-                onClick = {showExpenseAddDialog = true}
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "Add expense",
-                    tint = MaterialTheme.colorScheme.onSecondary
+            if (budgetId != null){
+                //plus icon button to add expenses
+                IconButton(
+                    onClick = {showExpenseAddDialog = true}
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "Add expense",
+                        tint = MaterialTheme.colorScheme.onSecondary
 
-                )
+                    )
+                }
             }
         }
     )
