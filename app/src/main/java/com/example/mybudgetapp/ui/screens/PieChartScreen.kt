@@ -45,7 +45,24 @@ fun PieChartScreen(
     }
 
     //group transactions by subcategory
-    val groupedTransactions = transactions.groupBy { it.subCategoryName }
+    //val groupedTransactions = transactions.groupBy { it.subCategoryName }
+
+    val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
+    val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
+
+// Filter by selected month & year
+    val filteredTransactions = transactions.filter { transaction ->
+        transaction.date?.let { date ->
+            val cal = java.util.Calendar.getInstance().apply { time = date }
+            val monthMatch = cal.getDisplayName(java.util.Calendar.MONTH, java.util.Calendar.LONG, java.util.Locale.getDefault()) == selectedMonth
+            val yearMatch = cal.get(java.util.Calendar.YEAR).toString() == selectedYear
+            monthMatch && yearMatch
+        } ?: false
+    }
+
+// Group filtered transactions by subcategory (same as before)
+    val groupedTransactions = filteredTransactions.groupBy { it.subCategoryName }
+
 
     //log grouped transactions
     Log.d("PieChartScreen", "Grouped Transactions: $groupedTransactions")
