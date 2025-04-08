@@ -1,6 +1,7 @@
 package com.example.mybudgetapp.data
 
 import android.util.Log
+import com.example.mybudgetapp.ui.model.TransactionType
 import com.google.firebase.firestore.FirebaseFirestore
 import java.sql.Timestamp
 
@@ -16,6 +17,7 @@ class TransactionRepository {
         description:String,
         amount:Double,
         date:Timestamp,
+        transactionType: String,
         onResult: (Boolean) -> Unit
     ) {
         val transaction = hashMapOf(
@@ -26,7 +28,8 @@ class TransactionRepository {
             "sub_category_name" to subCategoryName,
             "description" to description,
             "amount" to amount,
-            "date" to date
+            "date" to date,
+            "transaction_type" to transactionType
         )
 
         // Navigating to the right path

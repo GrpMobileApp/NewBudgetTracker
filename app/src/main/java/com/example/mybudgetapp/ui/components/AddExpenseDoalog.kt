@@ -50,6 +50,7 @@ fun AddExpenseDialog(
     val sharedViewModel: SharedViewModel = viewModel()
     val subCategoryViewModel: SubCategoryViewModel = viewModel()
     val auth = FirebaseAuth.getInstance()
+    var transactionType by remember { mutableStateOf("") }
 
 
     // State to hold the budgetId
@@ -95,6 +96,8 @@ fun AddExpenseDialog(
                 ) { selectedCategory ->
                     category = selectedCategory
                     Log.d("AddExpenseDialog", "selectedCategory '$selectedCategory' saved.")
+                    //update transaction type
+                    transactionType = if(category === "Income") "income" else "expense"
 
                     // Update subcategories based on the selected category
                     val selectedMainCategory = mainCategoryWithSubcategories.find { it.mainCategoryName == category }
@@ -156,6 +159,7 @@ fun AddExpenseDialog(
                                     description = note,
                                     amount = amountValue.toDouble(),
                                     date = java.sql.Timestamp(System.currentTimeMillis()),
+                                    transactionType = transactionType,
                                     onResult = { success -> if (success) onDismiss() }
                                 )
                                 subCategoryViewModel.updateTotalSpendAndRemaining(

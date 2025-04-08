@@ -3,6 +3,8 @@ package com.example.mybudgetapp.ui.viewModel
 import androidx.lifecycle.ViewModel
 import com.example.mybudgetapp.data.TransactionRepository
 import com.example.mybudgetapp.ui.model.ExpenseItem
+import com.example.mybudgetapp.ui.model.Transaction
+import com.example.mybudgetapp.ui.model.TransactionType
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.sql.Timestamp
 
@@ -26,6 +28,7 @@ class ExpenseViewModel:ViewModel() {
         description:String,
         amount:Double,
         date: Timestamp,
+        transactionType: String,
         onResult: (Boolean) -> Unit
     ){
         /*if (category.isNotBlank() && subCategory.isNotBlank() && amount > 0){
@@ -33,7 +36,7 @@ class ExpenseViewModel:ViewModel() {
             _expenses.value += newItem
         }
         */
-        repository.saveTransactions(userId,budgetId,categoryName,subCategoryId,subCategoryName,description,amount,date,onResult)
+        repository.saveTransactions(userId,budgetId,categoryName,subCategoryId,subCategoryName,description,amount,date,transactionType,onResult)
     }
 
     fun removeRelevantTransactions(subCategoryId: String, onResult :(Boolean) -> Unit){

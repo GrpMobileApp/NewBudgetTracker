@@ -8,5 +8,6 @@ data class ExpenseItem(
     val sub_category_name: String,
     val description: String,
     val amount: Double,
-    val date: Float
+    val date: Float,
+    val transaction_type: String
 )
