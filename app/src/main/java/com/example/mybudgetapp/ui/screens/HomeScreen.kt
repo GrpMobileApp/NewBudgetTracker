@@ -74,7 +74,7 @@ fun HomeScreen(
     val context = LocalContext.current
 
     // List of selectable budget categories (Planned, Spent, and Remaining)
-    val mainOptionList = listOf("Planned", "Spent", "Remaining")
+    val mainOptionList = listOf("Planned", "Earned/Spent", "Remaining")
     // Get selected option from ViewModel
     val selectedOption by sharedViewModel.selectedOption.collectAsState()
 
@@ -148,7 +148,7 @@ fun HomeScreen(
                     "Planned" -> {
                         HomeScreenContent(mainCategoryViewModel, subCategoryViewModel)
                     }
-                    "Spent" -> {
+                    "Earned/Spent" -> {
                         SpentScreenContent(mainCategoryViewModel, subCategoryViewModel)
                     }
                     "Remaining" -> {

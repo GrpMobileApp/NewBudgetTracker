@@ -91,6 +91,9 @@ fun SpentScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCategory
 
                     // Display subcategories for this main category
                     category.subCategories.forEach {  subCat ->
+                        val amount = subCat.totalSpend ?: 0.0
+                        val sign = if (category.mainCategoryName == "Income") "+" else "-"
+                        val displayAmount = if (amount != 0.0) "$sign$amount" else "0.0"
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -98,7 +101,7 @@ fun SpentScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCategory
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(text = subCat.subCategoryName, fontSize = 15.sp)
-                            Text(text = subCat.totalSpend.toString(), fontSize = 15.sp)
+                            Text(text = displayAmount, fontSize = 15.sp)
                         }
 
                         // Add the separating line
