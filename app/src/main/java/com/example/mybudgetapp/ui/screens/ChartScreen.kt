@@ -50,7 +50,26 @@ fun ChartScreen(
     }
 
     //group transactions by subcategory
-    val groupedTransactions = transactions.groupBy { it.subCategoryName }
+    //val groupedTransactions = transactions.groupBy { it.subCategoryName }
+
+    val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
+    val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
+
+// Filter by selected month & year
+    val filteredTransactions = transactions.filter { transaction ->
+        transaction.date?.let { date ->
+            val cal = java.util.Calendar.getInstance().apply { time = date }
+            val monthMatch = cal.getDisplayName(java.util.Calendar.MONTH, java.util.Calendar.LONG, java.util.Locale.getDefault()) == selectedMonth
+            val yearMatch = cal.get(java.util.Calendar.YEAR).toString() == selectedYear
+            monthMatch && yearMatch
+        } ?: false
+    }
+
+// Group by date string (e.g., "05 Apr")
+    val groupedTransactions = filteredTransactions.groupBy { transaction ->
+        val formatter = java.text.SimpleDateFormat("dd MMM", java.util.Locale.getDefault())
+        formatter.format(transaction.date!!)
+    }
 
     //log grouped transactions
     Log.d("ChartScreen", "Grouped Transactions: $groupedTransactions")
@@ -61,7 +80,7 @@ fun ChartScreen(
     val barColors = mutableListOf<Int>()
 
     //loop through each grouped transaction and calculate total amount for each subcategory
-    groupedTransactions.forEach { (subCategoryName, transactionList) ->
+    /*groupedTransactions.forEach { (subCategoryName, transactionList) ->
         val totalAmount = transactionList.sumOf { it.getAmountAsDouble() }
 
         //log the total amount
@@ -81,7 +100,26 @@ fun ChartScreen(
             labels.add(subCategoryName)
             barColors.add(barColor)
         }
+    }*/
+
+    groupedTransactions.forEach { (dateLabel, transactionList) ->
+        val totalAmount = transactionList.sumOf { it.getAmountAsDouble() }
+
+        Log.d("ChartScreen", "Date: $dateLabel, Total Amount: $totalAmount")
+
+        if (totalAmount > 0) {
+            val barColor = if (transactionList.first().categoryName == "expense") {
+                Color.Red.toArgb()
+            } else {
+                Color.Green.toArgb()
+            }
+
+            barChartEntries.add(BarEntry(barChartEntries.size.toFloat(), totalAmount.toFloat()))
+            labels.add(dateLabel)
+            barColors.add(barColor)
+        }
     }
+
 
     //ensure load transactions when userId is available
     LaunchedEffect(userId) {
