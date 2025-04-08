@@ -77,6 +77,14 @@ fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCategoryV
     //Combined list of main categories with their subcategories
     val mainCategoryWithSubcategories by mainCategoryViewModel.mainCategoryWithSubcategories.collectAsState()
 
+    //sort by main category
+    val sortedMainCategoryWithSubcategories = remember(mainCategoryWithSubcategories) {
+        mainCategoryWithSubcategories.sortedWith(compareBy(
+            { it.mainCategoryName != "Income" },
+            { it.mainCategoryName == "Other" }
+        ))
+    }
+
     //To track selected subcategory
     var selectedMainCategory by remember { mutableStateOf<MainCategoryWithSubcategories?>(null) }
 
@@ -95,7 +103,7 @@ fun HomeScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCategoryV
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Loop through each main category and display their subcategories
-        mainCategoryWithSubcategories.forEach { category ->
+        sortedMainCategoryWithSubcategories.forEach { category ->
 
             Card(
                 modifier = Modifier

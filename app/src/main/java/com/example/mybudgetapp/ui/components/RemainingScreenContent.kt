@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,7 +50,13 @@ fun RemainingScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCate
     //Combined list of main categories with their subcategories
     val mainCategoryWithSubcategories by mainCategoryViewModel.mainCategoryWithSubcategories.collectAsState()
 
-
+    //sort by main category
+    val sortedMainCategoryWithSubcategories = remember(mainCategoryWithSubcategories) {
+        mainCategoryWithSubcategories.sortedWith(compareBy(
+            { it.mainCategoryName != "Income" },
+            { it.mainCategoryName == "Other" }
+        ))
+    }
 
     // Content of home screen
     Column(
@@ -60,7 +67,7 @@ fun RemainingScreenContent(mainCategoryViewModel: MainCategoryViewModel, subCate
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Loop through each main category and display their subcategories
-        mainCategoryWithSubcategories.forEach { category ->
+        sortedMainCategoryWithSubcategories.forEach { category ->
 
             Card(
                 modifier = Modifier
