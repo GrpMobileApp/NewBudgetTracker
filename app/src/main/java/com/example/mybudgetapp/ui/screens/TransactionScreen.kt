@@ -26,6 +26,10 @@ import com.example.mybudgetapp.ui.viewModel.DateAndMonthViewModel
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
 import com.example.mybudgetapp.ui.viewModel.TransactionViewModel
 import com.google.firebase.auth.FirebaseAuth
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Locale
 
 @Composable
 fun TransactionScreen(
@@ -43,9 +47,27 @@ fun TransactionScreen(
     val transactions by viewModel.transactions.observeAsState(emptyList())
 
     //filter transactions based on search query
-    val filteredTransactions by remember(searchQuery, transactions) {
+    /*val filteredTransactions by remember(searchQuery, transactions) {
         derivedStateOf {
             transactions.filter { it.subCategoryName.contains(searchQuery, ignoreCase = true) }
+        }
+    }*/
+
+    val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
+    val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
+
+    val filteredTransactions by remember(searchQuery, transactions, selectedMonth, selectedYear) {
+        derivedStateOf {
+            transactions.filter { transaction ->
+                val calendar = Calendar.getInstance()
+                transaction.date?.let { date ->
+                    calendar.time = date
+                    val monthMatch = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) == selectedMonth
+                    val yearMatch = calendar.get(Calendar.YEAR).toString() == selectedYear
+                    val queryMatch = transaction.subCategoryName.contains(searchQuery, ignoreCase = true)
+                    monthMatch && yearMatch && queryMatch
+                } ?: false
+            }
         }
     }
 
@@ -104,14 +126,26 @@ fun TransactionScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             //display filtered transactions
-            LazyColumn {
-                items(filteredTransactions) { transaction ->
-                    TransactionItem(transaction = transaction, viewModel = viewModel, navController = navController)
+            if (filteredTransactions.isEmpty()) {
+                Text(
+                    text = "No transactions added in this date.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Gray,
+                    modifier = Modifier
+                        .padding(top = 24.dp)
+                        .fillMaxWidth()
+                )
+            } else {
+                LazyColumn {
+                    items(filteredTransactions) { transaction ->
+                        TransactionItem(transaction = transaction, viewModel = viewModel, navController = navController)
+                    }
                 }
             }
+
+        }
         }
     }
-}
 
 @Composable
 fun TransactionItem(transaction: Transaction, navController: NavController, viewModel: TransactionViewModel) {
@@ -251,7 +285,7 @@ fun EditTransactionDialog(
                 //input for amount
                 OutlinedTextField(
                     value = amount,
-                    onValueChange = { amount = it },
+                    onValueChange = { amount = it  },
                     label = { Text("Amount") },
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
