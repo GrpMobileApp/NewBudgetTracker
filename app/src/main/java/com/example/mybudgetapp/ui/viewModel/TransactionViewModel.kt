@@ -17,7 +17,7 @@ class TransactionViewModel : ViewModel() {
     //load transactions for the logged-in user
     fun loadTransactions(userId: String) {
         db.collection("transactions")
-            .whereEqualTo("user_id", userId)  //get only the user's transactions
+            .whereEqualTo("userId", userId)  //get only the user's transactions
             .get()
             .addOnSuccessListener { result ->
                 if (result.isEmpty) {

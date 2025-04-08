@@ -10,9 +10,11 @@ enum class TransactionType { INCOME, EXPENSE }
 data class Transaction(
     var id: String = "",  //Firestore document ID
 
-
     @get:PropertyName("amount") @set:PropertyName("amount")
     var amount: Double = 0.0, //can be String or Double
+
+    @get:PropertyName("budgetId") @set:PropertyName("budgetId")
+    var budgetId: String = "",
 
     @get:PropertyName("category_name") @set:PropertyName("category_name")
     var categoryName: String = "",
@@ -30,14 +32,16 @@ data class Transaction(
     var subCategoryName: String = "",
 
     @get:PropertyName("user_id") @set:PropertyName("user_id")
-    var userId: String = ""
+    var userId: String = "",
+
+    @get:PropertyName("transaction_type") @set:PropertyName("transaction_type")
+    var transactionType: String = "",
 ) {
     // Function to determine the transaction type based on category name
     fun getTransactionType(): TransactionType {
-        return if (categoryName.equals("income", ignoreCase = true)) {
-            TransactionType.INCOME
-        } else {
-            TransactionType.EXPENSE
+        return when (transactionType.lowercase(Locale.getDefault())) {
+            "income" -> TransactionType.INCOME
+            else -> TransactionType.EXPENSE
         }
     }
 
