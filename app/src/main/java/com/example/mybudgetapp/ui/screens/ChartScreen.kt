@@ -41,21 +41,19 @@ fun ChartScreen(
     val userId = FirebaseAuth.getInstance().currentUser?.uid
     val transactions by viewModel.transactions.observeAsState(emptyList())
 
-    //log the transactions
+    // Log the transactions
     Log.d("ChartScreen", "Transactions: $transactions")
 
-    //ensure the transactions list is loaded before proceeding
+    // Ensure the transactions list is loaded before proceeding
     if (transactions.isEmpty()) {
         Log.d("ChartScreen", "No transactions to display.")
     }
 
-    //group transactions by subcategory
-    //val groupedTransactions = transactions.groupBy { it.subCategoryName }
-
+    // Get selected month and year from the view model
     val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
     val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
 
-// Filter by selected month & year
+    // Filter transactions by the selected month and year
     val filteredTransactions = transactions.filter { transaction ->
         transaction.date?.let { date ->
             val cal = java.util.Calendar.getInstance().apply { time = date }
@@ -65,63 +63,33 @@ fun ChartScreen(
         } ?: false
     }
 
-// Group by date string (e.g., "05 Apr")
-    val groupedTransactions = filteredTransactions.groupBy { transaction ->
-        val formatter = java.text.SimpleDateFormat("dd MMM", java.util.Locale.getDefault())
-        formatter.format(transaction.date!!)
-    }
-
-    //log grouped transactions
-    Log.d("ChartScreen", "Grouped Transactions: $groupedTransactions")
-
     // Initialize BarChart data
     val barChartEntries = mutableListOf<BarEntry>()
     val labels = mutableListOf<String>()
     val barColors = mutableListOf<Int>()
 
-    //loop through each grouped transaction and calculate total amount for each subcategory
-    /*groupedTransactions.forEach { (subCategoryName, transactionList) ->
-        val totalAmount = transactionList.sumOf { it.getAmountAsDouble() }
+    // Iterate through each transaction instead of grouping by date
+    filteredTransactions.forEachIndexed { index, transaction ->
+        val amount = transaction.getAmountAsDouble()
 
-        //log the total amount
-        Log.d("ChartScreen", "Subcategory: $subCategoryName, Total Amount: $totalAmount")
+        Log.d("ChartScreen", "Transaction: ${transaction.date}, Amount: $amount")
 
-        //only add entries with non-zero amounts
-        if (totalAmount > 0) {
-            //check if the transaction is an expense or income
-            val barColor = if (transactionList.first().categoryName == "expense") {
-                Color.Red.toArgb() //red for expenses
+        if (amount != 0.0) {
+            // Set the bar color based on category: green for income, red for expense
+            val barColor = if (transaction.categoryName?.equals("income", ignoreCase = true) == true) {
+                Color(0xFF81C784) // Green for income
             } else {
-                Color.Green.toArgb() //green for income
+                Color(0xFFEF9A9A) // Red for expense
             }
 
-            //add BarEntry for each subcategory with corresponding color
-            barChartEntries.add(BarEntry(barChartEntries.size.toFloat(), totalAmount.toFloat()))
-            labels.add(subCategoryName)
-            barColors.add(barColor)
-        }
-    }*/
-
-    groupedTransactions.forEach { (dateLabel, transactionList) ->
-        val totalAmount = transactionList.sumOf { it.getAmountAsDouble() }
-
-        Log.d("ChartScreen", "Date: $dateLabel, Total Amount: $totalAmount")
-
-        if (totalAmount > 0) {
-            val barColor = if (transactionList.first().categoryName == "expense") {
-                Color.Red.toArgb()
-            } else {
-                Color.Green.toArgb()
-            }
-
-            barChartEntries.add(BarEntry(barChartEntries.size.toFloat(), totalAmount.toFloat()))
-            labels.add(dateLabel)
-            barColors.add(barColor)
+            // Add each transaction as a separate entry
+            barChartEntries.add(BarEntry(index.toFloat(), amount.toFloat()))
+            labels.add(transaction.date.toString())  // Or format the date as needed
+            barColors.add(barColor.toArgb())  // Convert Color to ARGB integer
         }
     }
 
-
-    //ensure load transactions when userId is available
+    // Ensure to load transactions when userId is available
     LaunchedEffect(userId) {
         if (userId != null) {
             viewModel.loadTransactions(userId)
@@ -156,12 +124,12 @@ fun ChartScreen(
                             val data = BarData(dataSet)
                             this.data = data
 
-                            //set the x-axis labels
+                            // Set the x-axis labels
                             xAxis.valueFormatter = IndexAxisValueFormatter(labels)
                             xAxis.granularity = 1f
                             xAxis.isGranularityEnabled = true
 
-                            //customize the chart appearance
+                            // Customize the chart appearance
                             axisLeft.textColor = Color.Black.toArgb()
                             axisRight.isEnabled = false
                             xAxis.textColor = Color.Black.toArgb()
@@ -193,7 +161,7 @@ fun ChartScreen(
                 )
             }
 
-            //add labels below the chart
+            // Add labels below the chart
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 Text(
                     text = "Income & Expense",
@@ -202,6 +170,7 @@ fun ChartScreen(
                     modifier = Modifier.padding(8.dp)
                 )
             }
+
             // Add a button to navigate to PieChartScreen
             Spacer(modifier = Modifier.height(16.dp))
             Button(
@@ -211,5 +180,5 @@ fun ChartScreen(
                 Text(text = "View Pie Chart", color = Color.White)
             }
         }
-        }
     }
+}

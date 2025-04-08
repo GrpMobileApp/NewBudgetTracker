@@ -39,7 +39,7 @@ data class Transaction(
 ) {
     // Function to determine the transaction type based on category name
     fun getTransactionType(): TransactionType {
-        return when (transactionType.lowercase(Locale.getDefault())) {
+        return when (categoryName.lowercase(Locale.getDefault())) {
             "income" -> TransactionType.INCOME
             else -> TransactionType.EXPENSE
         }

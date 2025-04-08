@@ -46,13 +46,6 @@ fun TransactionScreen(
     //observe transactions from ViewModel
     val transactions by viewModel.transactions.observeAsState(emptyList())
 
-    //filter transactions based on search query
-    /*val filteredTransactions by remember(searchQuery, transactions) {
-        derivedStateOf {
-            transactions.filter { it.subCategoryName.contains(searchQuery, ignoreCase = true) }
-        }
-    }*/
-
     val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
     val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
 
@@ -96,26 +89,52 @@ fun TransactionScreen(
         )
         {
             // Display total income, total expense, and remaining balance
-            Text(
-                text = "Total Income: €${"%.2f".format(totalIncome)}",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
+            Button(
+                onClick = {},
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF81C784))  // Light Green
+            ) {
+                Text(
+                    text = "Total Income: €${"%.2f".format(totalIncome)}",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Total Expense: €${"%.2f".format(totalExpense)}",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = Color.Red
-            )
+
+            // Display total expense button
+            Button(
+                onClick = {},
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF9A9A))  // Light Red
+            ) {
+                Text(
+                    text = "Total Expense: €${"%.2f".format(totalExpense)}",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Remaining Balance: €${"%.2f".format(remainingBalance)}",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = if (remainingBalance >= 0) Color.Green else Color.Red
-            )
+
+            // Display remaining balance button
+            Button(
+                onClick = {},
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = when {
+                        remainingBalance >= 0 -> Color(0xFF81C784)  // Light Green
+                        else -> Color(0xFFEF9A9A)  // Light Red
+                    }
+                )
+            ) {
+                Text(
+                    text = "Remaining Balance: €${"%.2f".format(remainingBalance)}",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
+
             //search Bar
             OutlinedTextField(
                 value = searchQuery,

@@ -25,6 +25,7 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.google.firebase.auth.FirebaseAuth
 
+
 @Composable
 fun PieChartScreen(
     navController: NavController,
@@ -36,21 +37,18 @@ fun PieChartScreen(
     val userId = FirebaseAuth.getInstance().currentUser?.uid
     val transactions by viewModel.transactions.observeAsState(emptyList())
 
-    //log the transactions
+    // Log the transactions
     Log.d("PieChartScreen", "Transactions: $transactions")
 
-    //ensure the transactions list is loaded before proceeding
+    // Ensure the transactions list is loaded before proceeding
     if (transactions.isEmpty()) {
         Log.d("PieChartScreen", "No transactions to display.")
     }
 
-    //group transactions by subcategory
-    //val groupedTransactions = transactions.groupBy { it.subCategoryName }
-
     val selectedMonth by dateAndMonthViewModel.selectedMonth.collectAsState()
     val selectedYear by dateAndMonthViewModel.selectedYear.collectAsState()
 
-// Filter by selected month & year
+    // Filter by selected month & year
     val filteredTransactions = transactions.filter { transaction ->
         transaction.date?.let { date ->
             val cal = java.util.Calendar.getInstance().apply { time = date }
@@ -60,32 +58,37 @@ fun PieChartScreen(
         } ?: false
     }
 
-// Group filtered transactions by subcategory (same as before)
+    // Group filtered transactions by subcategory
     val groupedTransactions = filteredTransactions.groupBy { it.subCategoryName }
 
-
-    //log grouped transactions
+    // Log grouped transactions
     Log.d("PieChartScreen", "Grouped Transactions: $groupedTransactions")
 
     // Initialize PieChart data
     val pieEntries = mutableListOf<PieEntry>()
     val pieColors = mutableListOf<Int>()
 
-    //loop through each grouped transaction and calculate total amount for each subcategory
+    // Loop through each grouped transaction and calculate total amount for each subcategory
     groupedTransactions.forEach { (subCategoryName, transactionList) ->
         val totalAmount = transactionList.sumOf { it.getAmountAsDouble() }
 
-        // Log the total amount
+        // Log the total amount for each subcategory
         Log.d("PieChartScreen", "Subcategory: $subCategoryName, Total Amount: $totalAmount")
 
         // Only add entries with non-zero amounts
         if (totalAmount > 0) {
-            // Check if the transaction is an expense or income
-            val pieColor = if (transactionList.first().categoryName == "expense") {
-                Color.Red.toArgb() // Red for expenses
+            // Check if any transaction in the group is "income"
+            val pieColor = if (transactionList.any { it.categoryName?.equals("income", ignoreCase = true) == true }) {
+                Color(0xFF81C784).toArgb() // Green if any transaction is of category 'income'
             } else {
-                Color.Green.toArgb() // Green for income
+                // Apply colors for expenses
+                when {
+                    subCategoryName.contains("food", ignoreCase = true) -> Color(0xFFFF80AB).toArgb() // Pink for food expenses
+                    else -> Color(0xFFEF9A9A).toArgb() // Red for other expenses
+                }
             }
+            // Log the pie color chosen for this subcategory
+            Log.d("PieChartScreen", "PieColor for $subCategoryName: ${if (pieColor == Color.Green.toArgb()) "Green" else if (pieColor == Color.Magenta.toArgb()) "Pink" else "Orange"}")
 
             // Add PieEntry for each subcategory with corresponding color
             pieEntries.add(PieEntry(totalAmount.toFloat(), subCategoryName))
@@ -159,8 +162,16 @@ fun PieChartScreen(
                 )
             }
 
+            // Spacer to give some space between the chart and the label
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Add labels below the chart
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp), // Padding for label
+                horizontalArrangement = Arrangement.Center
+            ) {
                 Text(
                     text = "Income & Expense",
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
