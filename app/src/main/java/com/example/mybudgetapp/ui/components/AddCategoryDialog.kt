@@ -13,7 +13,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.mybudgetapp.ui.R
 
 @Composable
 fun AddCategoryDialog(onDismiss: () -> Unit, onSubmit: (String, Float) -> Unit, mainCategoryName:String) {
@@ -23,7 +26,7 @@ fun AddCategoryDialog(onDismiss: () -> Unit, onSubmit: (String, Float) -> Unit, 
     // Define the dialog UI
     AlertDialog(
         onDismissRequest = { onDismiss() },
-        title = { Text(mainCategoryName) },
+        title = { Text(text = mainCategoryName, fontWeight = FontWeight.Bold) },
 
         // Content of the dialog
         text = {
@@ -31,14 +34,14 @@ fun AddCategoryDialog(onDismiss: () -> Unit, onSubmit: (String, Float) -> Unit, 
                 TextField(
                     value = category,
                     onValueChange = { category = it },
-                    label = { Text("Enter Category") }
+                    label = { Text(stringResource(R.string.enter_category)) }
                 )
                 Spacer(modifier = Modifier.height(10.dp))
 
                 TextField(
                     value = amount,
                     onValueChange = { amount = it },
-                    label = { Text("Enter Amount") }
+                    label = { Text(stringResource(R.string.enter_amount)) }
                 )
             }
         },

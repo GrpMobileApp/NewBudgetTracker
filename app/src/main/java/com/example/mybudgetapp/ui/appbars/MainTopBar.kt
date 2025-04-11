@@ -133,10 +133,10 @@ fun MainTopBar(navController: NavController, dateAndMonthViewModel: DateAndMonth
                                             expanded = false
                                         }
                                         .background(
-                                            color = if (isSelected) Color.Gray else Color.White,
+                                            color = if (isSelected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondary,
                                             shape = RoundedCornerShape(16.dp)
                                         )
-                                        .border(2.dp, Color.Blue, shape = RoundedCornerShape(16.dp))
+                                        .border(2.dp, MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(16.dp))
                                         .padding(horizontal = 16.dp, vertical = 8.dp)
 
                                 ){

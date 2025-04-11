@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -95,7 +96,12 @@ fun AddExpenseDialog(
                     .padding(16.dp)
                     .fillMaxWidth()
             ) {
-                Text(text = "Add Transaction", style = MaterialTheme.typography.headlineSmall)
+                Text(
+                    text = "Add Transaction",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // Use DropdownLayout for Category

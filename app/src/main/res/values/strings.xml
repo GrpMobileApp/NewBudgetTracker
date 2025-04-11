@@ -5,6 +5,8 @@
     <string name="facebook_app_id">1145362430654909</string>
     <string name="fb_login_protocol_scheme">fb1145362430654909</string>
     <string name="facebook_client_token">497a54fd302e6f882dd986733af9c4e0</string>
+    <string name="enter_category">Enter Category</string>
+    <string name="enter_amount">Enter Amount</string>
 
 
 </resources>
