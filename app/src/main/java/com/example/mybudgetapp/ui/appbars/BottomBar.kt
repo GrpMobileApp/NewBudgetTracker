@@ -1,5 +1,9 @@
 package com.example.mybudgetapp.ui.appbars
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.AttachMoney
@@ -12,7 +16,10 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
@@ -29,7 +36,7 @@ fun BottomBar(navController: NavController){
         TabItem("Profile", Icons.Filled.Person, route = "profile")
     )
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.primary // Set background color of the bottom navigation bar
+        containerColor = MaterialTheme.colorScheme.primary, // Set background color of the bottom navigation bar
     ) {
         tabs.forEach { tab ->
             val selected = tab.route ===
@@ -37,17 +44,31 @@ fun BottomBar(navController: NavController){
             NavigationBarItem(
                 selected = selected,
                 onClick = {navController.navigate(tab.route)},
+                icon = {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .padding(0.dp) // Remove default padding here
+                    ) {
+                        Icon(
+                            imageVector = tab.icon,
+                            contentDescription = null,
+                            tint = if (selected) Color(0xFF64B5F6) else MaterialTheme.colorScheme.onSecondary
+                        )
+                    }
+                },
                 label = {
                     Text(
                         tab.label,
-                        color = if (selected) Color(0xFF64B5F6) else Color.LightGray // Change text color if selected
+                        color = if (selected) Color(0xFF64B5F6) else MaterialTheme.colorScheme.onSecondary,
+                        modifier = Modifier.padding(top = 5.dp) // You can adjust the top padding here for text
                     )
                 },
-                icon = { Icon(
-                    imageVector = tab.icon,
-                    contentDescription = null,
-                    tint = if (selected) Color(0xFF64B5F6) else Color.LightGray // Change text color if selected
-                ) }
+                colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
+                    indicatorColor = Color(0xFFF2EFE7) // Remove the gray highlight background
+                )
+
             )
         }
     }

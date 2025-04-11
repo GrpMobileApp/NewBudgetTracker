@@ -172,7 +172,8 @@ fun HomeScreen(
                     ) {
                         Text(
                             text = "Let's plan your month",
-                            fontSize = 20.sp
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(16.dp))
 
@@ -184,8 +185,9 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.height(10.dp))
 
                         Text(
-                            text = "Select the relavant month in topbar",
-                            fontSize = 20.sp
+                            text = "Select the month from topbar",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
                         )
 
                         Spacer(modifier = Modifier.height(10.dp))
