@@ -1,5 +1,9 @@
 package com.example.mybudgetapp.ui.components
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -22,9 +26,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.media.app.NotificationCompat
+import com.example.mybudgetapp.ui.MyFirebaseMessagingService
+import com.example.mybudgetapp.ui.R
 import com.example.mybudgetapp.ui.viewModel.MainCategoryViewModel
 import com.example.mybudgetapp.ui.model.SubCategoryItem
 import com.example.mybudgetapp.ui.viewModel.ExpenseViewModel
@@ -39,6 +47,7 @@ fun AddExpenseDialog(
     expenseViewModel: ExpenseViewModel,
     mainCategoryViewModel: MainCategoryViewModel
 ){
+    val context = LocalContext.current
     var category by remember { mutableStateOf("") }
     var subCategory by remember { mutableStateOf("") }
     var subCategoryId by remember { mutableStateOf("") }
@@ -150,6 +159,10 @@ fun AddExpenseDialog(
                         onClick = {
 
                             if (budgetId != null && !subCategoryId.isNullOrBlank() && category.isNotBlank() && subCategory.isNotBlank() && amountValue > 0) {
+                                val finalAmount = amountValue.toDouble()
+                                val newSpend = totalSpend + finalAmount
+                                val newRemaining = remainingAmount - finalAmount
+
                                 expenseViewModel.storeExpense(
                                     userId = userId,
                                     budgetId = budgetId !!,
@@ -164,13 +177,17 @@ fun AddExpenseDialog(
                                 )
                                 subCategoryViewModel.updateTotalSpendAndRemaining(
                                     subCategoryId = subCategoryId,
-                                    totalSpend = totalSpend + amountValue,
-                                    remaining = remainingAmount - amountValue,
+                                    totalSpend = newSpend,
+                                    remaining = newRemaining,
                                 ) { success ->
                                     if (success) {
                                         Log.d(
                                             "AddExpenseDialog", "Successfully updated totalSpend and remainingAmount"
                                         )
+                                        if (newRemaining <= 0) {
+                                            val notificationService = MyFirebaseMessagingService()
+                                            notificationService.sendOverspendNotification(context, subCategory)
+                                        }
                                     } else {
                                         Log.e(
                                             "AddExpenseDialog", "Failed to update totalSpend and remainingAmount"

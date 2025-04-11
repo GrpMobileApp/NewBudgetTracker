@@ -76,6 +76,12 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp:4.12.0")
     implementation(libs.androidx.runtime.livedata)
 
+    //For messaging
+    implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation(libs.firebase.messaging)
+    implementation(libs.androidx.espresso.core)
+
 
     // Testing
     testImplementation(libs.junit)
