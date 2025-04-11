@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
@@ -28,7 +29,7 @@ fun BottomBar(navController: NavController){
         TabItem("Profile", Icons.Filled.Person, route = "profile")
     )
     NavigationBar(
-        containerColor = Color.DarkGray // Set background color of the bottom navigation bar
+        containerColor = MaterialTheme.colorScheme.primary // Set background color of the bottom navigation bar
     ) {
         tabs.forEach { tab ->
             val selected = tab.route ===
